@@ -1,0 +1,7 @@
+{
+  "name": "EcoCycle Rwanda",
+  "description": "A climate-smart circular agriculture enterprise in Rwanda, regenerating land and empowering youth, women, and persons with disabilities.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
