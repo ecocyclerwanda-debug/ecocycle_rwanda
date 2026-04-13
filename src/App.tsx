@@ -31,11 +31,13 @@ import {
   CheckCircle,
   PlayCircle,
   ExternalLink,
+  Youtube,
 } from 'lucide-react';
 import {
   Page,
   NavItem,
   LeaderItem,
+  ServiceItem,
   ProjectItem,
   ProductItem,
   PartnerItem,
@@ -51,6 +53,7 @@ import ContactForm from './components/ContactForm';
 import DonateRequestForm from './components/DonateRequestForm';
 import AdminPageContent from './components/AdminPageContent';
 import { startLeadersPolling } from './services/leadersService';
+import { startServicesPolling } from './services/servicesService';
 import { startProjectsPolling } from './services/projectsService';
 import { startProductsPolling } from './services/productsService';
 import { startPartnersPolling } from './services/partnersService';
@@ -65,6 +68,8 @@ function cn(...inputs: ClassValue[]) {
 
 type T = (typeof translations)[Language];
 
+const YOUTUBE_URL = 'https://www.youtube.com/@EcoCycleRwanda';
+
 function getLocalizedLeader(item: LeaderItem, language: Language) {
   const current = item.translations[language];
   const fallback = item.translations.en;
@@ -72,6 +77,19 @@ function getLocalizedLeader(item: LeaderItem, language: Language) {
   return {
     role: current.role || fallback.role,
     bio: current.bio || fallback.bio,
+  };
+}
+
+function getLocalizedService(item: ServiceItem, language: Language) {
+  const current = item.translations[language];
+  const fallback = item.translations.en;
+
+  return {
+    title: current.title || fallback.title,
+    subtitle: current.subtitle || fallback.subtitle,
+    description: current.description || fallback.description,
+    features: current.features.length ? current.features : fallback.features,
+    outcomes: current.outcomes.length ? current.outcomes : fallback.outcomes,
   };
 }
 
@@ -152,6 +170,7 @@ const TopBar = ({ t }: { t: T }) => {
             </a>
           </div>
         </div>
+
         <div className="flex items-center gap-4">
           <span className="text-white/60">{t.common.followUs}</span>
           <a
@@ -185,6 +204,14 @@ const TopBar = ({ t }: { t: T }) => {
             className="hover:text-emerald-400 transition-colors"
           >
             <Twitter size={14} />
+          </a>
+          <a
+            href={YOUTUBE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-emerald-400 transition-colors"
+          >
+            <Youtube size={14} />
           </a>
         </div>
       </div>
@@ -344,6 +371,7 @@ const Navbar = ({
                 <a href="https://www.instagram.com/ecocyclerwanda" target="_blank" rel="noopener noreferrer" className="text-emerald-900 hover:text-emerald-500 transition-colors"><Instagram size={24} /></a>
                 <a href="https://www.linkedin.com/company/ecocyclerwanda" target="_blank" rel="noopener noreferrer" className="text-emerald-900 hover:text-emerald-500 transition-colors"><Linkedin size={24} /></a>
                 <a href="https://x.com/EcoCycleRwanda" target="_blank" rel="noopener noreferrer" className="text-emerald-900 hover:text-emerald-500 transition-colors"><Twitter size={24} /></a>
+                <a href={YOUTUBE_URL} target="_blank" rel="noopener noreferrer" className="text-emerald-900 hover:text-emerald-500 transition-colors"><Youtube size={24} /></a>
               </div>
             </div>
           </motion.div>
@@ -380,6 +408,7 @@ const Footer = ({
               <a href="https://www.instagram.com/ecocyclerwanda" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-emerald-500 transition-colors"><Instagram size={18} /></a>
               <a href="https://www.linkedin.com/company/ecocyclerwanda" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-emerald-500 transition-colors"><Linkedin size={18} /></a>
               <a href="https://x.com/EcoCycleRwanda" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-emerald-500 transition-colors"><Twitter size={18} /></a>
+              <a href={YOUTUBE_URL} target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-emerald-500 transition-colors"><Youtube size={18} /></a>
             </div>
           </div>
 
@@ -701,76 +730,120 @@ const AboutPage = ({
 
 const ServicesPage = ({
   setCurrentPage,
+  setSelectedService,
   t,
+  language,
 }: {
   setCurrentPage: (p: Page) => void;
+  setSelectedService: (service: ServiceItem | null) => void;
   t: T;
+  language: Language;
 }) => {
-  const services = [
-    { title: t.servicesPage.cards.farming.title, desc: t.servicesPage.cards.farming.desc, icon: <Sprout className="w-10 h-10" />, page: 'service-farming' as Page },
-    { title: t.servicesPage.cards.climate.title, desc: t.servicesPage.cards.climate.desc, icon: <Zap className="w-10 h-10" />, page: 'service-climate' as Page },
-    { title: t.servicesPage.cards.circular.title, desc: t.servicesPage.cards.circular.desc, icon: <Recycle className="w-10 h-10" />, page: 'service-circular' as Page },
-    { title: t.servicesPage.cards.export.title, desc: t.servicesPage.cards.export.desc, icon: <Globe className="w-10 h-10" />, page: 'service-export' as Page },
-    { title: t.servicesPage.cards.empowerment.title, desc: t.servicesPage.cards.empowerment.desc, icon: <Users className="w-10 h-10" />, page: 'service-empowerment' as Page },
-  ];
+  const [services, setServices] = useState<ServiceItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const stop = startServicesPolling(
+      (items) => {
+        setServices(items.filter((item) => item.active));
+        setLoading(false);
+      },
+      () => setLoading(false)
+    );
+    return stop;
+  }, []);
 
   return (
     <div className="pb-24">
       <section className="bg-emerald-900 text-white py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl font-bold mb-6">{t.servicesPage.title}</h1>
-          <p className="text-xl text-emerald-100 max-w-2xl mx-auto">{t.servicesPage.subtitle}</p>
+          <p className="text-xl text-emerald-100 max-w-2xl mx-auto">
+            {t.servicesPage.subtitle}
+          </p>
         </div>
       </section>
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-          {services.map((s, idx) => (
-            <div
-              key={idx}
-              className="bg-white p-10 rounded-3xl shadow-sm border border-emerald-900/5 hover:shadow-xl transition-shadow"
-            >
-              <div className="text-emerald-500 mb-6">{s.icon}</div>
-              <h3 className="text-2xl font-bold text-emerald-900 mb-4">{s.title}</h3>
-              <p className="text-slate-600 leading-relaxed mb-8">{s.desc}</p>
-              <button
-                onClick={() => setCurrentPage(s.page)}
-                className="text-emerald-900 font-semibold flex items-center gap-2 hover:text-emerald-500 transition-colors"
-              >
-                {t.common.learnMore} <ArrowRight size={18} />
-              </button>
-            </div>
-          ))}
-        </div>
+        {loading ? (
+          <div className="text-center text-slate-500">Loading services...</div>
+        ) : services.length === 0 ? (
+          <div className="text-center text-slate-500">No services added yet.</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+            {services.map((service) => {
+              const text = getLocalizedService(service, language);
+
+              return (
+                <div
+                  key={service.id}
+                  className="bg-white p-10 rounded-3xl shadow-sm border border-emerald-900/5 hover:shadow-xl transition-shadow"
+                >
+                  <div className="mb-6">
+                    <img
+                      src={service.imageUrl}
+                      alt={text.title}
+                      className="w-full h-52 object-cover rounded-2xl"
+                    />
+                  </div>
+
+                  <h3 className="text-2xl font-bold text-emerald-900 mb-4">
+                    {text.title}
+                  </h3>
+
+                  <p className="text-slate-600 leading-relaxed mb-8">
+                    {text.subtitle}
+                  </p>
+
+                  <button
+                    onClick={() => {
+                      setSelectedService(service);
+                      setCurrentPage('service-detail');
+                    }}
+                    className="text-emerald-900 font-semibold flex items-center gap-2 hover:text-emerald-500 transition-colors"
+                  >
+                    {t.common.learnMore} <ArrowRight size={18} />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </section>
     </div>
   );
 };
 
-const ServiceDetailPage = ({
-  title,
-  subtitle,
-  description,
-  features,
-  outcomes,
-  image,
+const DynamicServiceDetailPage = ({
+  service,
   setCurrentPage,
   t,
+  language,
 }: {
-  title: string;
-  subtitle: string;
-  description: string;
-  features: string[];
-  outcomes: string[];
-  image: string;
+  service: ServiceItem | null;
   setCurrentPage: (p: Page) => void;
   t: T;
+  language: Language;
 }) => {
+  if (!service) {
+    return (
+      <div className="py-24 text-center text-slate-500">
+        No service selected.
+      </div>
+    );
+  }
+
+  const text = getLocalizedService(service, language);
+
   return (
     <div className="pb-24">
       <section className="relative h-[45vh] flex items-center">
         <div className="absolute inset-0 z-0">
-          <img src={image} alt={title} className="w-full h-full object-cover brightness-50" />
+          <img
+            src={service.imageUrl}
+            alt={text.title}
+            className="w-full h-full object-cover brightness-50"
+          />
         </div>
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
           <button
@@ -779,8 +852,10 @@ const ServiceDetailPage = ({
           >
             {t.common.backToServices}
           </button>
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">{title}</h1>
-          <p className="text-lg md:text-xl text-emerald-100 max-w-3xl">{subtitle}</p>
+          <h1 className="text-4xl md:text-6xl font-bold mb-4">{text.title}</h1>
+          <p className="text-lg md:text-xl text-emerald-100 max-w-3xl">
+            {text.subtitle}
+          </p>
         </div>
       </section>
 
@@ -788,11 +863,11 @@ const ServiceDetailPage = ({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-emerald-900/5 p-10">
             <h2 className="text-3xl font-bold text-emerald-900 mb-6">{t.common.overview}</h2>
-            <p className="text-slate-700 text-lg leading-relaxed mb-10">{description}</p>
+            <p className="text-slate-700 text-lg leading-relaxed mb-10">{text.description}</p>
 
             <h3 className="text-2xl font-bold text-emerald-900 mb-5">{t.common.whatWeOffer}</h3>
             <div className="space-y-4 mb-12">
-              {features.map((item, index) => (
+              {text.features.map((item, index) => (
                 <div key={index} className="flex items-start gap-3">
                   <CheckCircle size={20} className="text-emerald-500 mt-1 shrink-0" />
                   <span className="text-slate-700">{item}</span>
@@ -802,7 +877,7 @@ const ServiceDetailPage = ({
 
             <h3 className="text-2xl font-bold text-emerald-900 mb-5">{t.common.expectedOutcomes}</h3>
             <div className="space-y-4">
-              {outcomes.map((item, index) => (
+              {text.outcomes.map((item, index) => (
                 <div key={index} className="flex items-start gap-3">
                   <CheckCircle size={20} className="text-emerald-500 mt-1 shrink-0" />
                   <span className="text-slate-700">{item}</span>
@@ -814,7 +889,9 @@ const ServiceDetailPage = ({
           <div className="space-y-8">
             <div className="bg-[#fcfcf7] rounded-3xl border border-emerald-900/10 p-8">
               <h3 className="text-2xl font-bold text-emerald-900 mb-4">{t.common.needThisService}</h3>
-              <p className="text-slate-600 mb-6 leading-relaxed">{t.contact.subtitle}</p>
+              <p className="text-slate-600 mb-6 leading-relaxed">
+                {t.contact.subtitle}
+              </p>
               <button
                 onClick={() => setCurrentPage('contact')}
                 className="w-full bg-emerald-900 text-white py-4 rounded-xl font-bold hover:bg-emerald-800 transition-colors"
@@ -1180,11 +1257,12 @@ const ContactPage = ({ t }: { t: T }) => {
             </div>
             <div>
               <h3 className="text-xl font-bold text-emerald-900 mb-6">{t.contact.follow}</h3>
-              <div className="flex gap-4">
+              <div className="flex gap-4 flex-wrap">
                 <a href="https://www.facebook.com/EcoCycleRwanda" target="_blank" rel="noopener noreferrer" className="p-4 bg-white shadow-sm border border-emerald-900/5 rounded-2xl hover:text-emerald-500 transition-colors"><Facebook /></a>
                 <a href="https://www.instagram.com/ecocyclerwanda" target="_blank" rel="noopener noreferrer" className="p-4 bg-white shadow-sm border border-emerald-900/5 rounded-2xl hover:text-emerald-500 transition-colors"><Instagram /></a>
                 <a href="https://www.linkedin.com/company/ecocyclerwanda" target="_blank" rel="noopener noreferrer" className="p-4 bg-white shadow-sm border border-emerald-900/5 rounded-2xl hover:text-emerald-500 transition-colors"><Linkedin /></a>
                 <a href="https://x.com/EcoCycleRwanda" target="_blank" rel="noopener noreferrer" className="p-4 bg-white shadow-sm border border-emerald-900/5 rounded-2xl hover:text-emerald-500 transition-colors"><Twitter /></a>
+                <a href={YOUTUBE_URL} target="_blank" rel="noopener noreferrer" className="p-4 bg-white shadow-sm border border-emerald-900/5 rounded-2xl hover:text-emerald-500 transition-colors"><Youtube /></a>
               </div>
             </div>
           </div>
@@ -1308,6 +1386,7 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
   const [showSplash, setShowSplash] = useState(true);
   const [language, setLanguage] = useState<Language | null>(null);
+  const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('site-language') as Language | null;
@@ -1343,6 +1422,9 @@ export default function App() {
       home: `EcoCycle Rwanda`,
       about: `${t.nav.about} - EcoCycle Rwanda`,
       services: `${t.nav.services} - EcoCycle Rwanda`,
+      'service-detail': selectedService
+        ? `${getLocalizedService(selectedService, safeLanguage).title} - EcoCycle Rwanda`
+        : `Service - EcoCycle Rwanda`,
       products: `${t.nav.products} - EcoCycle Rwanda`,
       projects: `${t.nav.projects} - EcoCycle Rwanda`,
       impact: `${t.nav.impact} - EcoCycle Rwanda`,
@@ -1351,14 +1433,9 @@ export default function App() {
       donate: `${t.nav.donate} - EcoCycle Rwanda`,
       contact: `${t.nav.contact} - EcoCycle Rwanda`,
       admin: `Admin - EcoCycle Rwanda`,
-      'service-farming': `${t.servicesPage.cards.farming.title} - EcoCycle Rwanda`,
-      'service-climate': `${t.servicesPage.cards.climate.title} - EcoCycle Rwanda`,
-      'service-circular': `${t.servicesPage.cards.circular.title} - EcoCycle Rwanda`,
-      'service-export': `${t.servicesPage.cards.export.title} - EcoCycle Rwanda`,
-      'service-empowerment': `${t.servicesPage.cards.empowerment.title} - EcoCycle Rwanda`,
     };
     document.title = titles[currentPage];
-  }, [currentPage, language, t]);
+  }, [currentPage, language, t, selectedService, safeLanguage]);
 
   if (showSplash) {
     return <SplashScreen />;
@@ -1375,78 +1452,23 @@ export default function App() {
       case 'about':
         return <AboutPage t={t} language={safeLanguage} />;
       case 'services':
-        return <ServicesPage setCurrentPage={setCurrentPage} t={t} />;
-
-      case 'service-farming':
         return (
-          <ServiceDetailPage
-            title={t.serviceDetails.farming.title}
-            subtitle={t.serviceDetails.farming.subtitle}
-            description={t.serviceDetails.farming.description}
-            features={[...t.serviceDetails.farming.features]}
-            outcomes={[...t.serviceDetails.farming.outcomes]}
-            image="https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&q=80&w=1600"
+          <ServicesPage
             setCurrentPage={setCurrentPage}
+            setSelectedService={setSelectedService}
             t={t}
+            language={safeLanguage}
           />
         );
-
-      case 'service-climate':
+      case 'service-detail':
         return (
-          <ServiceDetailPage
-            title={t.serviceDetails.climate.title}
-            subtitle={t.serviceDetails.climate.subtitle}
-            description={t.serviceDetails.climate.description}
-            features={[...t.serviceDetails.climate.features]}
-            outcomes={[...t.serviceDetails.climate.outcomes]}
-            image="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80&w=1600"
+          <DynamicServiceDetailPage
+            service={selectedService}
             setCurrentPage={setCurrentPage}
             t={t}
+            language={safeLanguage}
           />
         );
-
-      case 'service-circular':
-        return (
-          <ServiceDetailPage
-            title={t.serviceDetails.circular.title}
-            subtitle={t.serviceDetails.circular.subtitle}
-            description={t.serviceDetails.circular.description}
-            features={[...t.serviceDetails.circular.features]}
-            outcomes={[...t.serviceDetails.circular.outcomes]}
-            image="https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&q=80&w=1600"
-            setCurrentPage={setCurrentPage}
-            t={t}
-          />
-        );
-
-      case 'service-export':
-        return (
-          <ServiceDetailPage
-            title={t.serviceDetails.export.title}
-            subtitle={t.serviceDetails.export.subtitle}
-            description={t.serviceDetails.export.description}
-            features={[...t.serviceDetails.export.features]}
-            outcomes={[...t.serviceDetails.export.outcomes]}
-            image="https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&q=80&w=1600"
-            setCurrentPage={setCurrentPage}
-            t={t}
-          />
-        );
-
-      case 'service-empowerment':
-        return (
-          <ServiceDetailPage
-            title={t.serviceDetails.empowerment.title}
-            subtitle={t.serviceDetails.empowerment.subtitle}
-            description={t.serviceDetails.empowerment.description}
-            features={[...t.serviceDetails.empowerment.features]}
-            outcomes={[...t.serviceDetails.empowerment.outcomes]}
-            image="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=1600"
-            setCurrentPage={setCurrentPage}
-            t={t}
-          />
-        );
-
       case 'projects':
         return <ProjectsPage t={t} language={safeLanguage} setCurrentPage={setCurrentPage} />;
       case 'impact':

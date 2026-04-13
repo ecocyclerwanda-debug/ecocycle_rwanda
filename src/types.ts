@@ -2,6 +2,7 @@ export type Page =
   | 'home'
   | 'about'
   | 'services'
+  | 'service-detail'
   | 'products'
   | 'projects'
   | 'impact'
@@ -9,12 +10,7 @@ export type Page =
   | 'news'
   | 'donate'
   | 'contact'
-  | 'admin'
-  | 'service-farming'
-  | 'service-climate'
-  | 'service-circular'
-  | 'service-export'
-  | 'service-empowerment';
+  | 'admin';
 
 export type NavItem = {
   label: string;
@@ -61,6 +57,37 @@ export type LeaderItem = {
     fr: {
       role: string;
       bio: string;
+    };
+  };
+};
+
+export type ServiceItem = {
+  id: string;
+  slug: string;
+  imageUrl: string;
+  displayOrder: number;
+  active: boolean;
+  translations: {
+    en: {
+      title: string;
+      subtitle: string;
+      description: string;
+      features: string[];
+      outcomes: string[];
+    };
+    rw: {
+      title: string;
+      subtitle: string;
+      description: string;
+      features: string[];
+      outcomes: string[];
+    };
+    fr: {
+      title: string;
+      subtitle: string;
+      description: string;
+      features: string[];
+      outcomes: string[];
     };
   };
 };

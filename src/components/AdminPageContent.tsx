@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import AdminAuthPanel from './AdminAuthPanel';
 import AdminNewsPanel from './AdminNewsPanel';
 import AdminLeadersPanel from './AdminLeadersPanel';
+import AdminServicesPanel from './AdminServicesPanel';
 import AdminProjectsPanel from './AdminProjectsPanel';
 import AdminPartnersPanel from './AdminPartnersPanel';
 import AdminProductsPanel from './AdminProductsPanel';
@@ -53,6 +54,7 @@ export default function AdminPageContent({ t }: Props) {
           <div className="space-y-16">
             <AdminNewsPanel labels={categoryLabels} isLoggedIn={true} />
             <AdminLeadersPanel isLoggedIn={true} />
+            <AdminServicesPanel isLoggedIn={true} />
             <AdminProjectsPanel isLoggedIn={true} />
             <AdminPartnersPanel isLoggedIn={true} />
             <AdminProductsPanel isLoggedIn={true} />
