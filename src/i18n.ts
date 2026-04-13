@@ -74,10 +74,10 @@ export const translations = {
       heroText:
         'Leading the transition to climate-smart circular farming. We restore ecosystems while creating opportunities for youth, women, and persons with disabilities.',
       stats: {
-        soil: 'Hectares of soil restored',
-        youth: 'Youth trained',
-        women: 'Women engaged',
-        pwd: 'PWD participants supported',
+        soil: 'Hectares of soil to be restored',
+        youth: 'Youth to be trained',
+        women: 'Women to be engaged',
+        pwd: 'PWD participants to be supported',
       },
       servicesTitle: 'Integrated Solutions for Sustainable Growth',
       services: {
@@ -484,14 +484,14 @@ export const translations = {
       hero2: 'Guteza imbere abaturage.',
       hero3: 'Kwita kuri bose.',
       heroText:
-        'Duyobora impinduka zigana ku buhinzi buzirikana ikirere n’ubukungu buzenguruka. Dusubiza ubuzima ku bidukikije kandi tugahanga amahirwe ku rubyiruko, abagore n’abafite ubumuga.',
+        'Kwimakaza ubuhinzi burambye hashingiwe ku mihindagurikire y’ikirere. Kubungabunga urusobe rw’ibinyabuzima tugahanga amahirwe ku rubyiruko, abagore n’abafite ubumuga.',
       stats: {
-        soil: 'Hegitari z’ubutaka zagaruwe neza',
-        youth: 'Urubyiruko rwahuguwe',
-        women: 'Abagore bitabiriye',
-        pwd: 'Abafite ubumuga bafashijwe',
+        soil: 'Hegitari z’ubutaka buzabungabungwa neza',
+        youth: 'Urubyiruko ruzahugurwa',
+        women: 'Abagore bazitabira',
+        pwd: 'Abafite ubumuga bazafashwa',
       },
-      servicesTitle: 'Ibisubizo bihuriweho bigamije iterambere rirambye',
+      servicesTitle: 'Ibisubizo bikomatanyije bigamije iterambere rirambye',
       services: {
         crop: 'Ubuhinzi n’imboga',
         livestock: 'Guhuza ubuhinzi n’ubworozi',
@@ -896,10 +896,10 @@ export const translations = {
       heroText:
         'Nous menons la transition vers une agriculture circulaire intelligente face au climat. Nous restaurons les écosystèmes tout en créant des opportunités pour les jeunes, les femmes et les personnes en situation de handicap.',
       stats: {
-        soil: 'Hectares de sols restaurés',
-        youth: 'Jeunes formés',
-        women: 'Femmes impliquées',
-        pwd: 'Personnes handicapées soutenues',
+        soil: 'Hectares de sols à restaurer',
+        youth: 'Jeunes à former',
+        women: 'Femmes à impliquer',
+        pwd: 'Personnes handicapées à soutenir',
       },
       servicesTitle: 'Des solutions intégrées pour une croissance durable',
       services: {

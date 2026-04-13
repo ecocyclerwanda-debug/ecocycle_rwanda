@@ -5,7 +5,6 @@ import AdminLeadersPanel from './AdminLeadersPanel';
 import AdminServicesPanel from './AdminServicesPanel';
 import AdminProjectsPanel from './AdminProjectsPanel';
 import AdminPartnersPanel from './AdminPartnersPanel';
-import AdminProductsPanel from './AdminProductsPanel';
 import AdminImpactsPanel from './AdminImpactsPanel';
 import { getCurrentAdmin } from '../lib/appwrite';
 import type { NewsCategory } from '../types';
@@ -22,6 +21,7 @@ export default function AdminPageContent({ t }: Props) {
       const user = await getCurrentAdmin();
       setAdminEmail(user?.email ?? null);
     };
+
     check();
   }, []);
 
@@ -57,12 +57,11 @@ export default function AdminPageContent({ t }: Props) {
             <AdminServicesPanel isLoggedIn={true} />
             <AdminProjectsPanel isLoggedIn={true} />
             <AdminPartnersPanel isLoggedIn={true} />
-            <AdminProductsPanel isLoggedIn={true} />
             <AdminImpactsPanel isLoggedIn={true} />
           </div>
         ) : (
           <div className="max-w-4xl mx-auto bg-white rounded-3xl border border-emerald-900/10 shadow-sm p-8 text-slate-600">
-            Sign in first to see upload tools.
+            Sign in first to see admin tools.
           </div>
         )}
       </section>

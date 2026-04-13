@@ -119,30 +119,6 @@ export type ProjectItem = {
   };
 };
 
-export type ProductItem = {
-  id: string;
-  imageUrl: string;
-  displayOrder: number;
-  active: boolean;
-  translations: {
-    en: {
-      name: string;
-      description: string;
-      category: string;
-    };
-    rw: {
-      name: string;
-      description: string;
-      category: string;
-    };
-    fr: {
-      name: string;
-      description: string;
-      category: string;
-    };
-  };
-};
-
 export type PartnerItem = {
   id: string;
   name: string;

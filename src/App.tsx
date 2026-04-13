@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users,
@@ -26,12 +26,18 @@ import {
   MessageCircle,
   Twitter,
   Package,
-  ShoppingCart,
-  FileText,
   CheckCircle,
   PlayCircle,
   ExternalLink,
   Youtube,
+  Leaf,
+  Trees,
+  Beef,
+  Factory,
+  Wrench,
+  ShieldCheck,
+  ShoppingBag,
+  Flower2,
 } from 'lucide-react';
 import {
   Page,
@@ -39,7 +45,6 @@ import {
   LeaderItem,
   ServiceItem,
   ProjectItem,
-  ProductItem,
   PartnerItem,
   ImpactStoryItem,
 } from './types';
@@ -55,7 +60,6 @@ import AdminPageContent from './components/AdminPageContent';
 import { startLeadersPolling } from './services/leadersService';
 import { startServicesPolling } from './services/servicesService';
 import { startProjectsPolling } from './services/projectsService';
-import { startProductsPolling } from './services/productsService';
 import { startPartnersPolling } from './services/partnersService';
 import { startImpactStoriesPolling } from './services/impactsService';
 import { translations, type Language } from './i18n';
@@ -67,7 +71,6 @@ function cn(...inputs: ClassValue[]) {
 }
 
 type T = (typeof translations)[Language];
-
 const YOUTUBE_URL = 'https://www.youtube.com/@EcoCycleRwanda';
 
 function getLocalizedLeader(item: LeaderItem, language: Language) {
@@ -105,17 +108,6 @@ function getLocalizedProject(item: ProjectItem, language: Language) {
   };
 }
 
-function getLocalizedProduct(item: ProductItem, language: Language) {
-  const current = item.translations[language];
-  const fallback = item.translations.en;
-
-  return {
-    name: current.name || fallback.name,
-    description: current.description || fallback.description,
-    category: current.category || fallback.category,
-  };
-}
-
 function getLocalizedPartner(item: PartnerItem, language: Language) {
   const current = item.translations[language];
   const fallback = item.translations.en;
@@ -142,19 +134,13 @@ const TopBar = ({ t }: { t: T }) => {
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
             <Mail size={14} className="text-emerald-400" />
-            <a
-              href="mailto:ecocyclerwandaltd@gmail.com"
-              className="hover:text-emerald-400 transition-colors"
-            >
+            <a href="mailto:ecocyclerwandaltd@gmail.com" className="hover:text-emerald-400 transition-colors">
               {t.topbar.email}
             </a>
           </div>
           <div className="flex items-center gap-2">
             <Phone size={14} className="text-emerald-400" />
-            <a
-              href="tel:+250788963938"
-              className="hover:text-emerald-400 transition-colors"
-            >
+            <a href="tel:+250788963938" className="hover:text-emerald-400 transition-colors">
               {t.topbar.phone}
             </a>
           </div>
@@ -173,44 +159,19 @@ const TopBar = ({ t }: { t: T }) => {
 
         <div className="flex items-center gap-4">
           <span className="text-white/60">{t.common.followUs}</span>
-          <a
-            href="https://www.facebook.com/EcoCycleRwanda"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-emerald-400 transition-colors"
-          >
+          <a href="https://www.facebook.com/EcoCycleRwanda" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors">
             <Facebook size={14} />
           </a>
-          <a
-            href="https://www.instagram.com/ecocyclerwanda"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-emerald-400 transition-colors"
-          >
+          <a href="https://www.instagram.com/ecocyclerwanda" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors">
             <Instagram size={14} />
           </a>
-          <a
-            href="https://www.linkedin.com/company/ecocyclerwanda"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-emerald-400 transition-colors"
-          >
+          <a href="https://www.linkedin.com/company/ecocyclerwanda" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors">
             <Linkedin size={14} />
           </a>
-          <a
-            href="https://x.com/EcoCycleRwanda"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-emerald-400 transition-colors"
-          >
+          <a href="https://x.com/EcoCycleRwanda" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors">
             <Twitter size={14} />
           </a>
-          <a
-            href={YOUTUBE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-emerald-400 transition-colors"
-          >
+          <a href={YOUTUBE_URL} target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors">
             <Youtube size={14} />
           </a>
         </div>
@@ -1138,40 +1099,418 @@ const DonatePage = ({ t }: { t: T }) => {
 const ProductsPage = ({
   t,
   language,
+  setCurrentPage,
 }: {
   t: T;
   language: Language;
+  setCurrentPage: (p: Page) => void;
 }) => {
-  const [products, setProducts] = useState<ProductItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const productIconMap = {
+    0: <Sprout className="w-6 h-6" />,
+    1: <Flower2 className="w-6 h-6" />,
+    2: <Beef className="w-6 h-6" />,
+    3: <Package className="w-6 h-6" />,
+    4: <Recycle className="w-6 h-6" />,
+    5: <Trees className="w-6 h-6" />,
+    6: <Wrench className="w-6 h-6" />,
+    7: <ShieldCheck className="w-6 h-6" />,
+    8: <ShoppingBag className="w-6 h-6" />,
+  };
 
-  useEffect(() => {
-    const stop = startProductsPolling(
-      (items) => {
-        setProducts(items.filter((item) => item.active));
-        setLoading(false);
-      },
-      () => setLoading(false)
-    );
-    return stop;
-  }, []);
+  const productsContent = {
+    en: {
+      groups: [
+        {
+          title: 'Agricultural & Farming Products',
+          subtitle:
+            'From crop growing, irrigation, machinery services, and agronomy consulting.',
+          items: [
+            'Cereals (maize, wheat, sorghum, etc.)',
+            'Rice (including organic rice)',
+            'Legumes (beans, peas, soybeans)',
+            'Oil seeds (sunflower, groundnuts, etc.)',
+            'Vegetables (fresh and processed)',
+            'Tropical fruits (bananas, mangoes, avocados, pineapples, papayas)',
+            'Mushrooms',
+            'Plant seedlings (for crops)',
+            'Irrigated crops (high-yield produce)',
+          ],
+        },
+        {
+          title: 'Plant & Nursery Products',
+          subtitle:
+            'From plant growing, nurseries, forestry, and landscaping.',
+          items: [
+            'Ornamental plants (flowers, decorative plants)',
+            'Tree seedlings (forest & non-forest)',
+            'Turf/grass for landscaping',
+            'Cuttings, slips, bulbs, tubers',
+            'Reforestation seedlings',
+            'Landscaping plants',
+          ],
+        },
+        {
+          title: 'Animal & Livestock Products',
+          subtitle: 'From animal care and livestock production.',
+          items: [
+            'Live animals (cattle, goats, poultry, etc.)',
+            'Milk and dairy products',
+            'Meat and poultry products',
+            'Eggs',
+            'Animal breeding stock',
+          ],
+        },
+        {
+          title: 'Agro-Processing & Market-Ready Products',
+          subtitle:
+            'From crop preparation, cleaning, grading, and market packaging.',
+          items: [
+            'Cleaned and graded grains',
+            'Packaged vegetables and fruits',
+            'Processed agricultural produce (semi-processed)',
+            'Sorted agricultural commodities ready for market',
+          ],
+        },
+        {
+          title: 'Recycling & Environmental Products',
+          subtitle:
+            'From waste recycling and environmental protection.',
+          items: [
+            'Recycled metal materials',
+            'Recycled plastic materials',
+            'Scrap materials (resale)',
+            'Reusable spare parts',
+            'Organic compost',
+            'Biomass fuel',
+          ],
+        },
+        {
+          title: 'Environmental & Ecological Products',
+          subtitle:
+            'From land maintenance and environmental programmes.',
+          items: [
+            'Carbon credits (if projects qualify)',
+            'Environmental restoration outputs',
+            'Soil improvement products (compost, organic fertilizers)',
+            'Tree planting packages',
+          ],
+        },
+        {
+          title: 'Technical & Consulting Products',
+          subtitle:
+            'Packaged technical, engineering, and consultancy solutions.',
+          items: [
+            'Environmental impact assessment reports',
+            'Engineering design plans',
+            'Agricultural consultancy packages',
+            'Irrigation system designs',
+            'Waste management plans',
+            'Research reports',
+            'Feasibility studies',
+          ],
+        },
+        {
+          title: 'Cleaning & Maintenance Products',
+          subtitle:
+            'Indirect products from industrial cleaning and maintenance support.',
+          items: [
+            'Cleaning solutions (if produced or resold)',
+            'Waste collected and processed (recyclables)',
+            'Maintenance service bundles',
+          ],
+        },
+        {
+          title: 'Trading & Wholesale Products',
+          subtitle: 'From wholesale and retail activities.',
+          items: [
+            'Fertilizers',
+            'Agrochemicals (pesticides, herbicides)',
+            'Animal feed materials',
+            'Agricultural inputs (tools, seeds)',
+            'Fresh food products (meat, fish, dairy, bakery, etc.)',
+          ],
+        },
+      ],
+      highlightsTitle: 'Market Highlights',
+      highlights: [
+        'Diverse agricultural, nursery, livestock, and environmental products',
+        'Products suitable for local, institutional, and export-oriented markets',
+        'Strong alignment with sustainability, restoration, and circular economy goals',
+        'Inclusive business model supporting youth, women, and persons with disabilities',
+      ],
+      buyerTitle: 'Looking for a trusted supplier?',
+      buyerText:
+        'Contact EcoCycle Rwanda to discuss product availability, bulk supply, partnerships, and customized buyer support.',
+      buyerButton: 'Become a Buyer',
+    },
 
-  const grouped = useMemo(() => {
-    return products.reduce<Record<string, ProductItem[]>>((acc, item) => {
-      const text = getLocalizedProduct(item, language);
-      const key = text.category || 'Other';
-      if (!acc[key]) acc[key] = [];
-      acc[key].push(item);
-      return acc;
-    }, {});
-  }, [products, language]);
+    rw: {
+      groups: [
+        {
+          title: 'Ibikomoka ku Buhinzi n’Ubworozi',
+          subtitle:
+            'Bikomoka ku buhinzi bw’ibihingwa, kuhira, imashini z’ubuhinzi, n’ubujyanama mu buhinzi.',
+          items: [
+            'Ibinyampeke (ibigori, ingano, amasaka, n’ibindi)',
+            'Umuceri (harimo n’umuceri w’umwimerere)',
+            'Ibinyamisogwe (ibishyimbo, amashaza, soya)',
+            'Ibimera by’amavuta (izuba, ubunyobwa, n’ibindi)',
+            'Imboga mbisi cyangwa zitunganyije',
+            'Imbuto zo mu turere dushyuha (ibitoki, imyembe, avoka, inanasi, amapapayi)',
+            'Ibihumyo',
+            'Ingemwe z’ibihingwa',
+            'Ibihingwa bihirwa bitanga umusaruro mwinshi',
+          ],
+        },
+        {
+          title: 'Ibikomoka muri Pepiniyeri n’Ibimera',
+          subtitle:
+            'Bikomoka ku bworozi bw’ibimera, pepiniyeri, amashyamba, n’imitako y’ahantu.',
+          items: [
+            'Ibimera by’imitako n’indabyo',
+            'Ingemwe z’ibiti by’amashyamba n’ibitari ibyo mu mashyamba',
+            'Ibyatsi byo gutaka ahantu',
+            'Amashami, utubuto, ibijumba n’uduce tw’ibimera',
+            'Ingemwe zo gusubiranya amashyamba',
+            'Ibimera byo gutaka ahantu',
+          ],
+        },
+        {
+          title: 'Ibikomoka ku Matungo',
+          subtitle: 'Bikomoka ku kwita ku matungo no kuyorora.',
+          items: [
+            'Amatungo mazima (inka, ihene, inkoko, n’ibindi)',
+            'Amata n’ibiyakomokaho',
+            'Inyama n’ibikomoka ku nkoko',
+            'Amagi',
+            'Amatungo yo kororoka',
+          ],
+        },
+        {
+          title: 'Ibikomoka ku Gutunganya Umusaruro no Kuwugeza ku Isoko',
+          subtitle:
+            'Bikomoka ku gutegura, gusukura, gutoranya no gupakira umusaruro.',
+          items: [
+            'Ibinyampeke byasukuwe kandi byatoranyijwe',
+            'Imboga n’imbuto bipfunyitse neza',
+            'Umusaruro w’ubuhinzi watunganyijwe igice',
+            'Ibicuruzwa by’ubuhinzi byatoranyijwe biteguye isoko',
+          ],
+        },
+        {
+          title: 'Ibikomoka ku Isubiranyamikoreshereze n’Ibidukikije',
+          subtitle:
+            'Bikomoka ku kongera gukoresha imyanda no kurengera ibidukikije.',
+          items: [
+            'Ibyuma byongeye gukoreshwa',
+            'Plastiki zongeye gukoreshwa',
+            'Ibikoresho bishaje bigurishwa',
+            'Ibice by’imodoka cyangwa ibindi bikoresho byongera gukoreshwa',
+            'Ifumbire y’imborera',
+            'Ibicanwa bya biomass',
+          ],
+        },
+        {
+          title: 'Ibikomoka ku Bidukikije no Gusana Isi',
+          subtitle:
+            'Bikomoka ku gufata neza ubutaka no kuri gahunda z’ibidukikije.',
+          items: [
+            'Carbon credits (aho bishoboka)',
+            'Ibyavuye mu gusana ibidukikije',
+            'Ibikoresho byongera uburumbuke bw’ubutaka',
+            'Pakaje zo gutera ibiti',
+          ],
+        },
+        {
+          title: 'Ibicuruzwa by’Ubugeni n’Ubujyanama',
+          subtitle:
+            'Pakaje z’ibikorwa bya tekiniki, engineering, n’ubujyanama.',
+          items: [
+            'Raporo z’isuzuma ry’ingaruka ku bidukikije',
+            'Igishushanyo mbonera cya engineering',
+            'Pakaje z’ubujyanama mu buhinzi',
+            'Igishushanyo cya gahunda zo kuhira',
+            'Gahunda zo gucunga imyanda',
+            'Raporo z’ubushakashatsi',
+            'Inyigo zishoboka',
+          ],
+        },
+        {
+          title: 'Ibikomoka ku Isuku n’Ufashwe rwo Kubungabunga',
+          subtitle:
+            'Ibikomoka ku mirimo y’isuku n’ikorwa ry’ifashwe rya maintenance.',
+          items: [
+            'Imiti cyangwa ibisubizo by’isuku',
+            'Imyanda yakusanyijwe ikanatunganywa',
+            'Pakaje z’imirimo ya maintenance',
+          ],
+        },
+        {
+          title: 'Ibicuruzwa by’Ubucuruzi n’Igurisha ry’Igicuruzwa Cyinshi',
+          subtitle: 'Bikomoka ku bucuruzi bwo kugurisha no kugurisha byinshi.',
+          items: [
+            'Ifumbire',
+            'Imiti y’ubuhinzi',
+            'Ibiryo by’amatungo',
+            'Ibikoresho by’ubuhinzi (ibikoresho, imbuto)',
+            'Ibikomoka ku biribwa bishya (inyama, amafi, amata, imigati, n’ibindi)',
+          ],
+        },
+      ],
+      highlightsTitle: 'Iby’ingenzi ku Isoko',
+      highlights: [
+        'Ibicuruzwa byinshi bitandukanye mu buhinzi, pepiniyeri, ubworozi n’ibidukikije',
+        'Ibicuruzwa bikwiriye amasoko yo mu gihugu, ibigo, n’ayo kohereza hanze',
+        'Bihuye n’intego zo kuramba, gusana ibidukikije, n’ubukungu buzenguruka',
+        'Uburyo bw’ubucuruzi bushyigikira urubyiruko, abagore n’abafite ubumuga',
+      ],
+      buyerTitle: 'Urashaka ugutanga ibicuruzwa wizewe?',
+      buyerText:
+        'Vugana na EcoCycle Rwanda ku bijyanye n’ibicuruzwa bihari, kugura byinshi, ubufatanye, n’ubufasha bwihariye ku baguzi.',
+      buyerButton: 'Ba Umuguzi',
+    },
+
+    fr: {
+      groups: [
+        {
+          title: 'Produits Agricoles et de Production',
+          subtitle:
+            'Issus de la culture, de l’irrigation, des services de machines agricoles et du conseil agronomique.',
+          items: [
+            'Céréales (maïs, blé, sorgho, etc.)',
+            'Riz (y compris riz biologique)',
+            'Légumineuses (haricots, pois, soja)',
+            'Oléagineux (tournesol, arachides, etc.)',
+            'Légumes frais et transformés',
+            'Fruits tropicaux (bananes, mangues, avocats, ananas, papayes)',
+            'Champignons',
+            'Plants agricoles',
+            'Cultures irriguées à haut rendement',
+          ],
+        },
+        {
+          title: 'Produits de Pépinière et Végétaux',
+          subtitle:
+            'Issus des pépinières, de la foresterie et de l’aménagement paysager.',
+          items: [
+            'Plantes ornementales',
+            'Plants d’arbres forestiers et non forestiers',
+            'Gazon pour aménagement paysager',
+            'Boutures, rejets, bulbes, tubercules',
+            'Plants de reboisement',
+            'Plantes de paysage',
+          ],
+        },
+        {
+          title: 'Produits Animaux et d’Élevage',
+          subtitle: 'Issus de l’élevage et des soins apportés aux animaux.',
+          items: [
+            'Animaux vivants (bovins, chèvres, volailles, etc.)',
+            'Lait et produits laitiers',
+            'Viande et produits avicoles',
+            'Œufs',
+            'Reproducteurs',
+          ],
+        },
+        {
+          title: 'Produits Agro-Transformés et Prêts pour le Marché',
+          subtitle:
+            'Issus de la préparation, du nettoyage, du tri et du conditionnement.',
+          items: [
+            'Grains nettoyés et calibrés',
+            'Légumes et fruits emballés',
+            'Produits agricoles semi-transformés',
+            'Produits agricoles triés prêts pour le marché',
+          ],
+        },
+        {
+          title: 'Produits de Recyclage et Environnementaux',
+          subtitle:
+            'Issus du recyclage des déchets et de la protection de l’environnement.',
+          items: [
+            'Matériaux métalliques recyclés',
+            'Matériaux plastiques recyclés',
+            'Matériaux de récupération',
+            'Pièces réutilisables',
+            'Compost organique',
+            'Combustible biomasse',
+          ],
+        },
+        {
+          title: 'Produits Écologiques et de Restauration',
+          subtitle:
+            'Issus de l’entretien des terres et des programmes environnementaux.',
+          items: [
+            'Crédits carbone (si les projets sont éligibles)',
+            'Résultats de restauration environnementale',
+            'Produits d’amélioration des sols',
+            'Packages de plantation d’arbres',
+          ],
+        },
+        {
+          title: 'Produits Techniques et de Conseil',
+          subtitle:
+            'Solutions packagées en ingénierie, conseil et études.',
+          items: [
+            'Rapports d’étude d’impact environnemental',
+            'Plans de conception d’ingénierie',
+            'Packages de conseil agricole',
+            'Plans de systèmes d’irrigation',
+            'Plans de gestion des déchets',
+            'Rapports de recherche',
+            'Études de faisabilité',
+          ],
+        },
+        {
+          title: 'Produits de Nettoyage et de Maintenance',
+          subtitle:
+            'Produits indirects liés au nettoyage industriel et à la maintenance.',
+          items: [
+            'Solutions de nettoyage',
+            'Déchets collectés et traités',
+            'Packages de maintenance',
+          ],
+        },
+        {
+          title: 'Produits de Commerce et de Vente en Gros',
+          subtitle: 'Issus des activités de commerce de détail et de gros.',
+          items: [
+            'Engrais',
+            'Produits agrochimiques',
+            'Aliments pour animaux',
+            'Intrants agricoles (outils, semences)',
+            'Produits alimentaires frais',
+          ],
+        },
+      ],
+      highlightsTitle: 'Points Forts du Marché',
+      highlights: [
+        'Une large gamme de produits agricoles, de pépinière, d’élevage et environnementaux',
+        'Des produits adaptés aux marchés locaux, institutionnels et orientés export',
+        'Un fort alignement avec la durabilité, la restauration et l’économie circulaire',
+        'Un modèle inclusif soutenant les jeunes, les femmes et les personnes handicapées',
+      ],
+      buyerTitle: 'Vous cherchez un fournisseur fiable ?',
+      buyerText:
+        'Contactez EcoCycle Rwanda pour discuter de la disponibilité des produits, des achats en gros, des partenariats et d’un accompagnement personnalisé pour les acheteurs.',
+      buyerButton: 'Devenir Acheteur',
+    },
+  } as const;
+
+  const content = productsContent[language] ?? productsContent.en;
 
   return (
     <div className="pb-24">
-      <section className="bg-[#fcfcf7] py-24 border-b border-emerald-900/5">
+      <section className="bg-[#fcfcf7] py-20 border-b border-emerald-900/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <h1 className="text-5xl font-bold text-emerald-900 mb-6">{t.products.title}</h1>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h1 className="text-5xl font-bold text-emerald-900 mb-6">
+              {t.products.title}
+            </h1>
             <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
               {t.products.subtitle}
             </p>
@@ -1179,55 +1518,94 @@ const ProductsPage = ({
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        {loading ? (
-          <div className="text-center text-slate-500">Loading products...</div>
-        ) : products.length === 0 ? (
-          <div className="text-center text-slate-500">No products added yet.</div>
-        ) : (
-          <div className="space-y-16">
-            {Object.entries(grouped).map(([category, categoryItems]) => (
-              <div key={category}>
-                <h2 className="text-3xl font-bold text-emerald-900 mb-8">{category}</h2>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                  {categoryItems.map((item) => {
-                    const text = getLocalizedProduct(item, language);
-
-                    return (
-                      <div
-                        key={item.id}
-                        className="bg-white rounded-3xl overflow-hidden shadow-sm border border-emerald-900/5 hover:shadow-xl transition-all duration-500"
-                      >
-                        <div className="aspect-[4/3] overflow-hidden">
-                          <img
-                            src={item.imageUrl}
-                            alt={text.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-
-                        <div className="p-8">
-                          <div className="text-xs text-emerald-500 font-bold uppercase mb-3">
-                            {text.category}
-                          </div>
-
-                          <h3 className="text-2xl font-bold text-emerald-900 mb-4">
-                            {text.name}
-                          </h3>
-
-                          <p className="text-slate-600 leading-relaxed">
-                            {text.description}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-8">
+        {content.groups.map((group, index) => (
+          <motion.div
+            key={group.title}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: index * 0.04 }}
+            className="bg-white rounded-[2rem] border border-emerald-900/5 shadow-sm overflow-hidden"
+          >
+            <div className="p-6 md:p-8 border-b border-emerald-900/5 bg-[#fcfcf7]">
+              <div className="flex items-center gap-4 mb-3">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-900 text-white flex items-center justify-center shadow-md">
+                  {productIconMap[index as keyof typeof productIconMap] ?? <Package className="w-6 h-6" />}
+                </div>
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-bold text-emerald-900">
+                    {group.title}
+                  </h2>
                 </div>
               </div>
-            ))}
+              <p className="text-slate-600 leading-relaxed">
+                {group.subtitle}
+              </p>
+            </div>
+
+            <div className="p-6 md:p-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {group.items.map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-start gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-emerald-200 transition-colors"
+                  >
+                    <CheckCircle size={18} className="text-emerald-500 mt-0.5 shrink-0" />
+                    <span className="text-slate-700 leading-relaxed">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </section>
+
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+        <div className="bg-white rounded-[2rem] border border-emerald-900/5 shadow-sm overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+            <div className="p-8 md:p-10 bg-emerald-900 text-white">
+              <h2 className="text-4xl font-bold mb-6">{t.products.impactTitle}</h2>
+              <p className="text-lg text-emerald-100 leading-relaxed mb-8">
+                {t.products.impactText}
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {t.products.impactItems.map((item, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <CheckCircle size={18} className="text-emerald-300 mt-1 shrink-0" />
+                    <span className="font-medium">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-8 md:p-10 bg-[#fcfcf7]">
+              <h3 className="text-2xl font-bold text-emerald-900 mb-6">{content.highlightsTitle}</h3>
+              <div className="space-y-4 text-slate-700 mb-10">
+                {content.highlights.map((item) => (
+                  <div key={item} className="flex items-start gap-3">
+                    <CheckCircle size={18} className="text-emerald-500 mt-1 shrink-0" />
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="rounded-3xl bg-white border border-emerald-900/10 p-6">
+                <h4 className="text-2xl font-bold text-emerald-900 mb-3">{content.buyerTitle}</h4>
+                <p className="text-slate-600 leading-relaxed mb-6">
+                  {content.buyerText}
+                </p>
+                <button
+                  onClick={() => setCurrentPage('contact')}
+                  className="inline-flex items-center gap-3 bg-emerald-900 text-white px-8 py-4 rounded-2xl font-bold hover:bg-emerald-800 transition-colors shadow-md"
+                >
+                  {content.buyerButton}
+                  <ArrowRight size={20} />
+                </button>
+              </div>
+            </div>
           </div>
-        )}
+        </div>
       </section>
     </div>
   );
@@ -1480,7 +1858,7 @@ export default function App() {
       case 'donate':
         return <DonatePage t={t} />;
       case 'products':
-        return <ProductsPage t={t} language={safeLanguage} />;
+        return <ProductsPage t={t} language={safeLanguage} setCurrentPage={setCurrentPage} />;
       case 'contact':
         return <ContactPage t={t} />;
       case 'admin':
