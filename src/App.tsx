@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users,
@@ -19,7 +19,6 @@ import {
   ChevronRight,
   Globe,
   Award,
-  Zap,
   Facebook,
   Instagram,
   Linkedin,
@@ -33,11 +32,14 @@ import {
   Leaf,
   Trees,
   Beef,
-  Factory,
   Wrench,
   ShieldCheck,
   ShoppingBag,
   Flower2,
+  Factory,
+  Wheat,
+  Tractor,
+  Apple,
 } from 'lucide-react';
 import {
   Page,
@@ -72,6 +74,18 @@ function cn(...inputs: ClassValue[]) {
 
 type T = (typeof translations)[Language];
 const YOUTUBE_URL = 'https://www.youtube.com/@EcoCycleRwanda';
+
+const pageBackgrounds = {
+  home: 'https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?auto=format&fit=crop&q=80&w=1920',
+  about: 'https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&q=80&w=1920',
+  services: 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&q=80&w=1920',
+  products: 'https://images.unsplash.com/photo-1518843875459-f738682238a6?auto=format&fit=crop&q=80&w=1920',
+  projects: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80&w=1920',
+  impact: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=1920',
+  partners: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&q=80&w=1920',
+  donate: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=1920',
+  contact: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&q=80&w=1920',
+};
 
 function getLocalizedLeader(item: LeaderItem, language: Language) {
   const current = item.translations[language];
@@ -127,20 +141,95 @@ function getLocalizedImpact(item: ImpactStoryItem, language: Language) {
   };
 }
 
+const PageHero = ({
+  title,
+  subtitle,
+  image,
+  badge,
+}: {
+  title: string;
+  subtitle?: string;
+  image: string;
+  badge?: string;
+}) => {
+  return (
+    <section className="relative h-[46vh] min-h-[320px] flex items-center overflow-hidden">
+      <div className="absolute inset-0">
+        <img
+          src={image}
+          alt={title}
+          className="w-full h-full object-cover scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/85 via-emerald-900/60 to-emerald-950/75" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.22),transparent_30%)]" />
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white w-full">
+        <motion.div
+          initial={{ opacity: 0, y: 22 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55 }}
+          className="max-w-3xl"
+        >
+          {badge ? (
+            <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/10 border border-white/20 text-emerald-200 text-xs font-black tracking-[0.25em] uppercase mb-6">
+              {badge}
+            </span>
+          ) : null}
+          <h1 className="text-4xl md:text-6xl font-black leading-tight tracking-tight">
+            {title}
+          </h1>
+          {subtitle ? (
+            <p className="mt-5 text-lg md:text-xl text-emerald-50/90 leading-relaxed max-w-2xl">
+              {subtitle}
+            </p>
+          ) : null}
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
+const HoverGlowCard = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => (
+  <motion.div
+    whileHover={{ y: -8 }}
+    transition={{ duration: 0.25 }}
+    className={cn(
+      'group relative overflow-hidden rounded-[2rem] border border-emerald-900/5 bg-white shadow-sm hover:shadow-2xl transition-all duration-300',
+      className
+    )}
+  >
+    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.12),transparent_34%)]" />
+    <div className="relative z-10">{children}</div>
+  </motion.div>
+);
+
 const TopBar = ({ t }: { t: T }) => {
   return (
-    <div className="bg-emerald-900 text-white py-2 border-b border-white/10 hidden md:block">
+    <div className="bg-emerald-950 text-white py-2 border-b border-white/10 hidden md:block">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center text-xs font-medium">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
             <Mail size={14} className="text-emerald-400" />
-            <a href="mailto:ecocyclerwandaltd@gmail.com" className="hover:text-emerald-400 transition-colors">
+            <a
+              href="mailto:ecocyclerwandaltd@gmail.com"
+              className="hover:text-emerald-400 transition-colors"
+            >
               {t.topbar.email}
             </a>
           </div>
           <div className="flex items-center gap-2">
             <Phone size={14} className="text-emerald-400" />
-            <a href="tel:+250788963938" className="hover:text-emerald-400 transition-colors">
+            <a
+              href="tel:+250788963938"
+              className="hover:text-emerald-400 transition-colors"
+            >
               {t.topbar.phone}
             </a>
           </div>
@@ -159,19 +248,44 @@ const TopBar = ({ t }: { t: T }) => {
 
         <div className="flex items-center gap-4">
           <span className="text-white/60">{t.common.followUs}</span>
-          <a href="https://www.facebook.com/EcoCycleRwanda" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors">
+          <a
+            href="https://www.facebook.com/EcoCycleRwanda"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-emerald-400 transition-colors"
+          >
             <Facebook size={14} />
           </a>
-          <a href="https://www.instagram.com/ecocyclerwanda" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors">
+          <a
+            href="https://www.instagram.com/ecocyclerwanda"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-emerald-400 transition-colors"
+          >
             <Instagram size={14} />
           </a>
-          <a href="https://www.linkedin.com/company/ecocyclerwanda" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors">
+          <a
+            href="https://www.linkedin.com/company/ecocyclerwanda"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-emerald-400 transition-colors"
+          >
             <Linkedin size={14} />
           </a>
-          <a href="https://x.com/EcoCycleRwanda" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors">
+          <a
+            href="https://x.com/EcoCycleRwanda"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-emerald-400 transition-colors"
+          >
             <Twitter size={14} />
           </a>
-          <a href={YOUTUBE_URL} target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors">
+          <a
+            href={YOUTUBE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-emerald-400 transition-colors"
+          >
             <Youtube size={14} />
           </a>
         </div>
@@ -328,11 +442,46 @@ const Navbar = ({
               </div>
 
               <div className="flex justify-center gap-8 py-6 border-t border-emerald-900/5 mt-4">
-                <a href="https://www.facebook.com/EcoCycleRwanda" target="_blank" rel="noopener noreferrer" className="text-emerald-900 hover:text-emerald-500 transition-colors"><Facebook size={24} /></a>
-                <a href="https://www.instagram.com/ecocyclerwanda" target="_blank" rel="noopener noreferrer" className="text-emerald-900 hover:text-emerald-500 transition-colors"><Instagram size={24} /></a>
-                <a href="https://www.linkedin.com/company/ecocyclerwanda" target="_blank" rel="noopener noreferrer" className="text-emerald-900 hover:text-emerald-500 transition-colors"><Linkedin size={24} /></a>
-                <a href="https://x.com/EcoCycleRwanda" target="_blank" rel="noopener noreferrer" className="text-emerald-900 hover:text-emerald-500 transition-colors"><Twitter size={24} /></a>
-                <a href={YOUTUBE_URL} target="_blank" rel="noopener noreferrer" className="text-emerald-900 hover:text-emerald-500 transition-colors"><Youtube size={24} /></a>
+                <a
+                  href="https://www.facebook.com/EcoCycleRwanda"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-emerald-900 hover:text-emerald-500 transition-colors"
+                >
+                  <Facebook size={24} />
+                </a>
+                <a
+                  href="https://www.instagram.com/ecocyclerwanda"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-emerald-900 hover:text-emerald-500 transition-colors"
+                >
+                  <Instagram size={24} />
+                </a>
+                <a
+                  href="https://www.linkedin.com/company/ecocyclerwanda"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-emerald-900 hover:text-emerald-500 transition-colors"
+                >
+                  <Linkedin size={24} />
+                </a>
+                <a
+                  href="https://x.com/EcoCycleRwanda"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-emerald-900 hover:text-emerald-500 transition-colors"
+                >
+                  <Twitter size={24} />
+                </a>
+                <a
+                  href={YOUTUBE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-emerald-900 hover:text-emerald-500 transition-colors"
+                >
+                  <Youtube size={24} />
+                </a>
               </div>
             </div>
           </motion.div>
@@ -355,43 +504,140 @@ const Footer = ({
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           <div>
             <div className="flex items-center mb-6">
-              <img
-                src={logoImg}
-                alt="EcoCycle Rwanda Logo"
-                className="h-16 w-auto"
-              />
+              <img src={logoImg} alt="EcoCycle Rwanda Logo" className="h-16 w-auto" />
             </div>
             <p className="text-slate-300 text-sm leading-relaxed mb-6">
               {t.footer.description}
             </p>
             <div className="flex gap-4">
-              <a href="https://www.facebook.com/EcoCycleRwanda" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-emerald-500 transition-colors"><Facebook size={18} /></a>
-              <a href="https://www.instagram.com/ecocyclerwanda" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-emerald-500 transition-colors"><Instagram size={18} /></a>
-              <a href="https://www.linkedin.com/company/ecocyclerwanda" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-emerald-500 transition-colors"><Linkedin size={18} /></a>
-              <a href="https://x.com/EcoCycleRwanda" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-emerald-500 transition-colors"><Twitter size={18} /></a>
-              <a href={YOUTUBE_URL} target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-emerald-500 transition-colors"><Youtube size={18} /></a>
+              <a
+                href="https://www.facebook.com/EcoCycleRwanda"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 bg-white/10 rounded-full hover:bg-emerald-500 transition-colors"
+              >
+                <Facebook size={18} />
+              </a>
+              <a
+                href="https://www.instagram.com/ecocyclerwanda"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 bg-white/10 rounded-full hover:bg-emerald-500 transition-colors"
+              >
+                <Instagram size={18} />
+              </a>
+              <a
+                href="https://www.linkedin.com/company/ecocyclerwanda"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 bg-white/10 rounded-full hover:bg-emerald-500 transition-colors"
+              >
+                <Linkedin size={18} />
+              </a>
+              <a
+                href="https://x.com/EcoCycleRwanda"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 bg-white/10 rounded-full hover:bg-emerald-500 transition-colors"
+              >
+                <Twitter size={18} />
+              </a>
+              <a
+                href={YOUTUBE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 bg-white/10 rounded-full hover:bg-emerald-500 transition-colors"
+              >
+                <Youtube size={18} />
+              </a>
             </div>
           </div>
 
           <div>
             <h4 className="text-lg font-semibold mb-6">{t.footer.quickLinks}</h4>
             <ul className="space-y-3 text-slate-300 text-sm">
-              <li><button onClick={() => setCurrentPage('about')} className="hover:text-emerald-400 transition-colors">{t.nav.about}</button></li>
-              <li><button onClick={() => setCurrentPage('services')} className="hover:text-emerald-400 transition-colors">{t.nav.services}</button></li>
-              <li><button onClick={() => setCurrentPage('products')} className="hover:text-emerald-400 transition-colors">{t.nav.products}</button></li>
-              <li><button onClick={() => setCurrentPage('projects')} className="hover:text-emerald-400 transition-colors">{t.nav.projects}</button></li>
-              <li><button onClick={() => setCurrentPage('donate')} className="hover:text-emerald-400 transition-colors">{t.nav.donate}</button></li>
-              <li><button onClick={() => setCurrentPage('contact')} className="hover:text-emerald-400 transition-colors">{t.nav.contact}</button></li>
+              <li>
+                <button
+                  onClick={() => setCurrentPage('about')}
+                  className="hover:text-emerald-400 transition-colors"
+                >
+                  {t.nav.about}
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => setCurrentPage('services')}
+                  className="hover:text-emerald-400 transition-colors"
+                >
+                  {t.nav.services}
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => setCurrentPage('products')}
+                  className="hover:text-emerald-400 transition-colors"
+                >
+                  {t.nav.products}
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => setCurrentPage('projects')}
+                  className="hover:text-emerald-400 transition-colors"
+                >
+                  {t.nav.projects}
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => setCurrentPage('donate')}
+                  className="hover:text-emerald-400 transition-colors"
+                >
+                  {t.nav.donate}
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => setCurrentPage('contact')}
+                  className="hover:text-emerald-400 transition-colors"
+                >
+                  {t.nav.contact}
+                </button>
+              </li>
             </ul>
           </div>
 
           <div>
             <h4 className="text-lg font-semibold mb-6">{t.footer.contactInfo}</h4>
             <ul className="space-y-4 text-slate-300 text-sm">
-              <li className="flex gap-3 items-start"><MapPin size={18} className="text-emerald-400 shrink-0" /><span>{t.footer.address}</span></li>
-              <li className="flex gap-3 items-center"><Phone size={18} className="text-emerald-400 shrink-0" /><a href="tel:+250788963938" className="hover:text-emerald-400 transition-colors">{t.topbar.phone}</a></li>
-              <li className="flex gap-3 items-center"><MessageCircle size={18} className="text-emerald-400 shrink-0" /><a href="https://wa.me/250788963938" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors">{t.footer.whatsappUs}</a></li>
-              <li className="flex gap-3 items-center"><Mail size={18} className="text-emerald-400 shrink-0" /><span>{t.topbar.email}</span></li>
+              <li className="flex gap-3 items-start">
+                <MapPin size={18} className="text-emerald-400 shrink-0" />
+                <span>{t.footer.address}</span>
+              </li>
+              <li className="flex gap-3 items-center">
+                <Phone size={18} className="text-emerald-400 shrink-0" />
+                <a
+                  href="tel:+250788963938"
+                  className="hover:text-emerald-400 transition-colors"
+                >
+                  {t.topbar.phone}
+                </a>
+              </li>
+              <li className="flex gap-3 items-center">
+                <MessageCircle size={18} className="text-emerald-400 shrink-0" />
+                <a
+                  href="https://wa.me/250788963938"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-emerald-400 transition-colors"
+                >
+                  {t.footer.whatsappUs}
+                </a>
+              </li>
+              <li className="flex gap-3 items-center">
+                <Mail size={18} className="text-emerald-400 shrink-0" />
+                <span>{t.topbar.email}</span>
+              </li>
             </ul>
           </div>
 
@@ -415,7 +661,9 @@ const Footer = ({
         </div>
 
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-slate-400 text-xs">
-          <p>© {new Date().getFullYear()} EcoCycle Rwanda. {t.footer.rights}</p>
+          <p>
+            © {new Date().getFullYear()} EcoCycle Rwanda. {t.footer.rights}
+          </p>
           <p>{t.footer.tagline}</p>
         </div>
       </div>
@@ -449,11 +697,11 @@ const HomePage = ({
   ];
 
   return (
-    <div className="space-y-24 pb-24">
+    <div className="space-y-24 pb-24 bg-[#f8fbf7]">
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?auto=format&fit=crop&q=80&w=1920"
+            src={pageBackgrounds.home}
             alt="Lush Rwandan Landscape"
             className="w-full h-full object-cover brightness-[0.45] scale-105"
           />
@@ -499,7 +747,10 @@ const HomePage = ({
                 className="bg-white/10 hover:bg-white/20 backdrop-blur-xl text-white border border-white/30 px-12 py-6 rounded-2xl font-black text-lg transition-all flex items-center gap-3 group"
               >
                 {t.common.aboutUs}
-                <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform" />
+                <ArrowRight
+                  size={24}
+                  className="group-hover:translate-x-2 transition-transform"
+                />
               </button>
             </div>
           </motion.div>
@@ -525,6 +776,7 @@ const HomePage = ({
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.1 }}
+              whileHover={{ scale: 1.03 }}
               className="text-center p-10 bg-white/90 backdrop-blur-xl rounded-[2rem] shadow-2xl border border-white/50"
             >
               <div className="text-5xl font-bold text-emerald-900 mb-3">{stat.value}</div>
@@ -536,8 +788,10 @@ const HomePage = ({
         </div>
       </section>
 
-      <section className="bg-white py-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="bg-white py-32 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.09),transparent_24%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(5,150,105,0.08),transparent_30%)]" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
             <div className="max-w-2xl">
               <span className="text-emerald-500 font-bold tracking-widest uppercase text-sm mb-4 block">
@@ -556,22 +810,18 @@ const HomePage = ({
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             {services.map((service, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.1 }}
-                whileHover={{ y: -10 }}
-                className="group bg-[#fcfcf7] p-10 rounded-[2.5rem] border border-emerald-900/5 hover:bg-white hover:shadow-2xl transition-all duration-500"
-              >
-                <div className="w-16 h-16 bg-emerald-900 text-white rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500 shadow-lg">
-                  {service.icon}
+              <HoverGlowCard key={idx}>
+                <div className="p-10">
+                  <div className="w-16 h-16 bg-emerald-900 text-white rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500 shadow-lg">
+                    {service.icon}
+                  </div>
+                  <h3 className="text-2xl font-bold text-emerald-900 mb-4">
+                    {service.title}
+                  </h3>
+                  <p className="text-slate-600 leading-relaxed mb-8">{t.home.serviceText}</p>
+                  <div className="w-12 h-1 bg-emerald-400/30 group-hover:w-full transition-all duration-500" />
                 </div>
-                <h3 className="text-2xl font-bold text-emerald-900 mb-4">{service.title}</h3>
-                <p className="text-slate-600 leading-relaxed mb-8">{t.home.serviceText}</p>
-                <div className="w-12 h-1 bg-emerald-400/30 group-hover:w-full transition-all duration-500" />
-              </motion.div>
+              </HoverGlowCard>
             ))}
           </div>
         </div>
@@ -599,26 +849,22 @@ const AboutPage = ({
   }, []);
 
   return (
-    <div className="pb-24">
-      <section className="relative h-[40vh] flex items-center">
-        <div className="absolute inset-0 z-0">
-          <img
-            src="https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&q=80&w=1920"
-            alt="About Us"
-            className="w-full h-full object-cover brightness-50"
-          />
-        </div>
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
-          <h1 className="text-5xl font-bold">{t.about.title}</h1>
-        </div>
-      </section>
+    <div className="pb-24 bg-[#f8fbf7]">
+      <PageHero
+        title={t.about.title}
+        subtitle={t.about.missionText}
+        image={pageBackgrounds.about}
+        badge={t.common.aboutUs}
+      />
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <div>
+          <HoverGlowCard className="p-10 md:p-12 bg-white">
             <div className="mb-12">
               <h2 className="text-3xl font-bold text-emerald-900 mb-4">{t.about.vision}</h2>
-              <p className="text-xl text-slate-600 italic leading-relaxed">{t.about.visionText}</p>
+              <p className="text-xl text-slate-600 italic leading-relaxed">
+                {t.about.visionText}
+              </p>
             </div>
             <div className="mb-12">
               <h2 className="text-3xl font-bold text-emerald-900 mb-4">{t.about.mission}</h2>
@@ -632,14 +878,16 @@ const AboutPage = ({
                 </div>
               ))}
             </div>
-          </div>
+          </HoverGlowCard>
+
           <div className="relative">
-            <img
+            <motion.img
+              whileHover={{ scale: 1.02 }}
               src="https://images.unsplash.com/photo-1595246140625-573b715d11dc?auto=format&fit=crop&q=80&w=1000"
               alt="Team"
-              className="rounded-3xl shadow-2xl"
+              className="rounded-[2rem] shadow-2xl w-full"
             />
-            <div className="absolute -bottom-8 -left-8 bg-emerald-900 text-white p-8 rounded-3xl shadow-xl hidden md:block">
+            <div className="absolute -bottom-8 -left-0 md:-left-8 bg-emerald-900 text-white p-8 rounded-3xl shadow-xl">
               <div className="text-3xl font-bold mb-1">{t.about.registered}</div>
               <div className="text-emerald-300 text-sm">{t.about.official}</div>
             </div>
@@ -647,8 +895,9 @@ const AboutPage = ({
         </div>
       </section>
 
-      <section className="bg-emerald-900/5 py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-24 bg-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.08),transparent_25%)]" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-emerald-900 mb-4">{t.about.leadership}</h2>
             <p className="text-slate-500">{t.about.leadershipText}</p>
@@ -662,10 +911,7 @@ const AboutPage = ({
                 const text = getLocalizedLeader(member, language);
 
                 return (
-                  <div
-                    key={member.id}
-                    className="bg-white rounded-3xl overflow-hidden shadow-sm border border-emerald-900/5 group hover:shadow-xl transition-all duration-500"
-                  >
+                  <HoverGlowCard key={member.id}>
                     <div className="aspect-square overflow-hidden">
                       <img
                         src={member.imageUrl}
@@ -678,7 +924,7 @@ const AboutPage = ({
                       <div className="text-emerald-500 font-medium mb-4">{text.role}</div>
                       <p className="text-slate-600 text-sm leading-relaxed">{text.bio}</p>
                     </div>
-                  </div>
+                  </HoverGlowCard>
                 );
               })}
             </div>
@@ -715,15 +961,13 @@ const ServicesPage = ({
   }, []);
 
   return (
-    <div className="pb-24">
-      <section className="bg-emerald-900 text-white py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl font-bold mb-6">{t.servicesPage.title}</h1>
-          <p className="text-xl text-emerald-100 max-w-2xl mx-auto">
-            {t.servicesPage.subtitle}
-          </p>
-        </div>
-      </section>
+    <div className="pb-24 bg-[#f8fbf7]">
+      <PageHero
+        title={t.servicesPage.title}
+        subtitle={t.servicesPage.subtitle}
+        image={pageBackgrounds.services}
+        badge={t.nav.services}
+      />
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         {loading ? (
@@ -736,36 +980,31 @@ const ServicesPage = ({
               const text = getLocalizedService(service, language);
 
               return (
-                <div
-                  key={service.id}
-                  className="bg-white p-10 rounded-3xl shadow-sm border border-emerald-900/5 hover:shadow-xl transition-shadow"
-                >
-                  <div className="mb-6">
-                    <img
-                      src={service.imageUrl}
-                      alt={text.title}
-                      className="w-full h-52 object-cover rounded-2xl"
-                    />
+                <HoverGlowCard key={service.id}>
+                  <div className="p-6">
+                    <div className="mb-6 overflow-hidden rounded-[1.5rem]">
+                      <img
+                        src={service.imageUrl}
+                        alt={text.title}
+                        className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-700"
+                      />
+                    </div>
+
+                    <h3 className="text-2xl font-bold text-emerald-900 mb-4">{text.title}</h3>
+
+                    <p className="text-slate-600 leading-relaxed mb-8">{text.subtitle}</p>
+
+                    <button
+                      onClick={() => {
+                        setSelectedService(service);
+                        setCurrentPage('service-detail');
+                      }}
+                      className="text-emerald-900 font-semibold flex items-center gap-2 hover:text-emerald-500 transition-colors"
+                    >
+                      {t.common.learnMore} <ArrowRight size={18} />
+                    </button>
                   </div>
-
-                  <h3 className="text-2xl font-bold text-emerald-900 mb-4">
-                    {text.title}
-                  </h3>
-
-                  <p className="text-slate-600 leading-relaxed mb-8">
-                    {text.subtitle}
-                  </p>
-
-                  <button
-                    onClick={() => {
-                      setSelectedService(service);
-                      setCurrentPage('service-detail');
-                    }}
-                    className="text-emerald-900 font-semibold flex items-center gap-2 hover:text-emerald-500 transition-colors"
-                  >
-                    {t.common.learnMore} <ArrowRight size={18} />
-                  </button>
-                </div>
+                </HoverGlowCard>
               );
             })}
           </div>
@@ -787,24 +1026,21 @@ const DynamicServiceDetailPage = ({
   language: Language;
 }) => {
   if (!service) {
-    return (
-      <div className="py-24 text-center text-slate-500">
-        No service selected.
-      </div>
-    );
+    return <div className="py-24 text-center text-slate-500">No service selected.</div>;
   }
 
   const text = getLocalizedService(service, language);
 
   return (
-    <div className="pb-24">
-      <section className="relative h-[45vh] flex items-center">
+    <div className="pb-24 bg-[#f8fbf7]">
+      <section className="relative h-[50vh] flex items-center">
         <div className="absolute inset-0 z-0">
           <img
             src={service.imageUrl}
             alt={text.title}
             className="w-full h-full object-cover brightness-50"
           />
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/80 via-emerald-900/50 to-emerald-950/70" />
         </div>
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
           <button
@@ -814,15 +1050,13 @@ const DynamicServiceDetailPage = ({
             {t.common.backToServices}
           </button>
           <h1 className="text-4xl md:text-6xl font-bold mb-4">{text.title}</h1>
-          <p className="text-lg md:text-xl text-emerald-100 max-w-3xl">
-            {text.subtitle}
-          </p>
+          <p className="text-lg md:text-xl text-emerald-100 max-w-3xl">{text.subtitle}</p>
         </div>
       </section>
 
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-          <div className="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-emerald-900/5 p-10">
+          <HoverGlowCard className="lg:col-span-2 p-10">
             <h2 className="text-3xl font-bold text-emerald-900 mb-6">{t.common.overview}</h2>
             <p className="text-slate-700 text-lg leading-relaxed mb-10">{text.description}</p>
 
@@ -836,7 +1070,9 @@ const DynamicServiceDetailPage = ({
               ))}
             </div>
 
-            <h3 className="text-2xl font-bold text-emerald-900 mb-5">{t.common.expectedOutcomes}</h3>
+            <h3 className="text-2xl font-bold text-emerald-900 mb-5">
+              {t.common.expectedOutcomes}
+            </h3>
             <div className="space-y-4">
               {text.outcomes.map((item, index) => (
                 <div key={index} className="flex items-start gap-3">
@@ -845,26 +1081,26 @@ const DynamicServiceDetailPage = ({
                 </div>
               ))}
             </div>
-          </div>
+          </HoverGlowCard>
 
           <div className="space-y-8">
-            <div className="bg-[#fcfcf7] rounded-3xl border border-emerald-900/10 p-8">
-              <h3 className="text-2xl font-bold text-emerald-900 mb-4">{t.common.needThisService}</h3>
-              <p className="text-slate-600 mb-6 leading-relaxed">
-                {t.contact.subtitle}
-              </p>
+            <HoverGlowCard className="p-8 bg-[#fcfcf7]">
+              <h3 className="text-2xl font-bold text-emerald-900 mb-4">
+                {t.common.needThisService}
+              </h3>
+              <p className="text-slate-600 mb-6 leading-relaxed">{t.contact.subtitle}</p>
               <button
                 onClick={() => setCurrentPage('contact')}
                 className="w-full bg-emerald-900 text-white py-4 rounded-xl font-bold hover:bg-emerald-800 transition-colors"
               >
                 {t.common.requestThisService}
               </button>
-            </div>
+            </HoverGlowCard>
 
-            <div className="bg-white rounded-3xl shadow-sm border border-emerald-900/5 p-8">
+            <HoverGlowCard className="p-8">
               <h3 className="text-xl font-bold text-emerald-900 mb-4">{t.common.whyItMatters}</h3>
               <p className="text-slate-600 leading-relaxed">{t.products.impactText}</p>
-            </div>
+            </HoverGlowCard>
           </div>
         </div>
       </section>
@@ -896,13 +1132,13 @@ const ProjectsPage = ({
   }, []);
 
   return (
-    <div className="pb-24">
-      <section className="bg-[#fcfcf7] py-24 border-b border-emerald-900/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl font-bold text-emerald-900 mb-6">{t.projects.title}</h1>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto">{t.projects.subtitle}</p>
-        </div>
-      </section>
+    <div className="pb-24 bg-[#f8fbf7]">
+      <PageHero
+        title={t.projects.title}
+        subtitle={t.projects.subtitle}
+        image={pageBackgrounds.projects}
+        badge={t.nav.projects}
+      />
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 space-y-24">
         {loading ? (
@@ -914,24 +1150,38 @@ const ProjectsPage = ({
             const text = getLocalizedProject(project, language);
 
             return (
-              <div key={project.id} className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+              <div
+                key={project.id}
+                className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center"
+              >
                 <div className={cn(idx % 2 !== 0 && 'lg:order-2')}>
-                  <img src={project.imageUrl} alt={text.title} className="rounded-3xl shadow-2xl w-full h-auto object-cover" />
+                  <motion.img
+                    whileHover={{ scale: 1.02 }}
+                    src={project.imageUrl}
+                    alt={text.title}
+                    className="rounded-[2rem] shadow-2xl w-full h-auto object-cover"
+                  />
                 </div>
 
-                <div className={cn(idx % 2 !== 0 && 'lg:order-1')}>
+                <HoverGlowCard className={cn('p-10 md:p-12', idx % 2 !== 0 && 'lg:order-1')}>
                   <h2 className="text-4xl font-bold text-emerald-900 mb-6">{text.title}</h2>
                   <div className="space-y-6 mb-10">
                     <div>
-                      <h4 className="text-emerald-500 font-semibold uppercase tracking-wider text-sm mb-1">{t.projects.goal}</h4>
+                      <h4 className="text-emerald-500 font-semibold uppercase tracking-wider text-sm mb-1">
+                        {t.projects.goal}
+                      </h4>
                       <p className="text-slate-700 text-lg">{text.goal}</p>
                     </div>
                     <div>
-                      <h4 className="text-emerald-500 font-semibold uppercase tracking-wider text-sm mb-1">{t.projects.impact}</h4>
+                      <h4 className="text-emerald-500 font-semibold uppercase tracking-wider text-sm mb-1">
+                        {t.projects.impact}
+                      </h4>
                       <p className="text-slate-700 text-lg">{text.impact}</p>
                     </div>
                     <div>
-                      <h4 className="text-emerald-500 font-semibold uppercase tracking-wider text-sm mb-1">{t.projects.activities}</h4>
+                      <h4 className="text-emerald-500 font-semibold uppercase tracking-wider text-sm mb-1">
+                        {t.projects.activities}
+                      </h4>
                       <p className="text-slate-700 whitespace-pre-line">{text.activities}</p>
                     </div>
                   </div>
@@ -941,7 +1191,7 @@ const ProjectsPage = ({
                   >
                     {t.projects.support}
                   </button>
-                </div>
+                </HoverGlowCard>
               </div>
             );
           })
@@ -973,13 +1223,13 @@ const ImpactPage = ({
   }, []);
 
   return (
-    <div className="pb-24">
-      <section className="bg-emerald-900 text-white py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl font-bold mb-6">{t.impact.title}</h1>
-          <p className="text-xl text-emerald-100 max-w-2xl mx-auto">{t.impact.subtitle}</p>
-        </div>
-      </section>
+    <div className="pb-24 bg-[#f8fbf7]">
+      <PageHero
+        title={t.impact.title}
+        subtitle={t.impact.subtitle}
+        image={pageBackgrounds.impact}
+        badge={t.nav.impact}
+      />
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         {loading ? (
@@ -997,9 +1247,13 @@ const ImpactPage = ({
                 const text = getLocalizedImpact(item, language);
 
                 return (
-                  <div key={item.id} className="bg-white rounded-3xl overflow-hidden shadow-sm border border-emerald-900/5">
+                  <HoverGlowCard key={item.id}>
                     <div className="aspect-video overflow-hidden">
-                      <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                      <img
+                        src={item.imageUrl}
+                        alt={item.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      />
                     </div>
                     <div className="p-8">
                       <div className="text-emerald-500 mb-4">
@@ -1023,7 +1277,7 @@ const ImpactPage = ({
                         </a>
                       ) : null}
                     </div>
-                  </div>
+                  </HoverGlowCard>
                 );
               })}
             </div>
@@ -1051,22 +1305,32 @@ const NewsPage = ({
   t: T;
   language: Language;
 }) => {
-  return <NewsPageContent t={t} language={language} />;
+  return (
+    <div className="bg-[#f8fbf7] min-h-screen">
+      <PageHero
+        title={t.nav.news}
+        subtitle={t.home.heroText}
+        image={pageBackgrounds.home}
+        badge={t.nav.news}
+      />
+      <NewsPageContent t={t} language={language} />
+    </div>
+  );
 };
 
 const DonatePage = ({ t }: { t: T }) => {
   return (
-    <div className="pb-24">
-      <section className="bg-emerald-900 text-white py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl font-bold mb-6">{t.donate.title}</h1>
-          <p className="text-xl text-emerald-100 max-w-2xl mx-auto">{t.donate.subtitle}</p>
-        </div>
-      </section>
+    <div className="pb-24 bg-[#f8fbf7]">
+      <PageHero
+        title={t.donate.title}
+        subtitle={t.donate.subtitle}
+        image={pageBackgrounds.donate}
+        badge={t.nav.donate}
+      />
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-          <div className="bg-white p-12 rounded-3xl shadow-sm border border-emerald-900/5">
+          <HoverGlowCard className="p-12">
             <h2 className="text-3xl font-bold text-emerald-900 mb-8">{t.donate.donateNow}</h2>
             <div className="grid grid-cols-2 gap-4 mb-8">
               {t.donate.options.map((opt) => (
@@ -1082,14 +1346,17 @@ const DonatePage = ({ t }: { t: T }) => {
               ))}
             </div>
             <p className="text-slate-600 leading-relaxed">
-              Click below to send your donation request directly to our email, and we will guide you on how to donate.
+              Click below to send your donation request directly to our email, and we will guide
+              you on how to donate.
             </p>
-          </div>
+          </HoverGlowCard>
 
-          <div className="bg-[#fcfcf7] p-12 rounded-3xl border border-emerald-900/10">
-            <h2 className="text-3xl font-bold text-emerald-900 mb-8">{t.donate.volunteerToday}</h2>
+          <HoverGlowCard className="p-12 bg-[#fcfcf7]">
+            <h2 className="text-3xl font-bold text-emerald-900 mb-8">
+              {t.donate.volunteerToday}
+            </h2>
             <DonateRequestForm t={t} />
-          </div>
+          </HoverGlowCard>
         </div>
       </section>
     </div>
@@ -1105,20 +1372,38 @@ const ProductsPage = ({
   language: Language;
   setCurrentPage: (p: Page) => void;
 }) => {
-  const productIconMap = {
-    0: <Sprout className="w-6 h-6" />,
-    1: <Flower2 className="w-6 h-6" />,
-    2: <Beef className="w-6 h-6" />,
-    3: <Package className="w-6 h-6" />,
-    4: <Recycle className="w-6 h-6" />,
-    5: <Trees className="w-6 h-6" />,
-    6: <Wrench className="w-6 h-6" />,
-    7: <ShieldCheck className="w-6 h-6" />,
-    8: <ShoppingBag className="w-6 h-6" />,
-  };
-
   const productsContent = {
     en: {
+      introLeft: {
+        badge: 'Nursery Products',
+        title: 'Quality Planting Materials',
+        description:
+          'EcoCycle Rwanda operates professional nurseries producing high-quality planting materials adapted to Rwanda’s agro-ecological conditions.',
+        cardTitle: 'Our Nursery Categories:',
+        items: [
+          'Horticultural seedlings',
+          'Forest tree seedlings',
+          'Agroforestry species',
+          'Climate-resilient plants',
+        ],
+        note:
+          'All seedlings are produced using sustainable soil management practices and quality-controlled systems to ensure strong root development and high survival rates.',
+      },
+      introRight: {
+        badge: 'Fresh Produce',
+        title: 'Local & Export Markets',
+        description:
+          'Premium horticulture products produced and supplied for local and international markets following climate-smart agricultural practices.',
+        cardTitle: 'Key Products:',
+        items: ['Avocado', 'Chili', 'Green beans', 'Seasonal Fruits'],
+        complianceTitle: 'Market Compliance:',
+        compliance: [
+          'Quality grading',
+          'Traceability systems',
+          'Post-harvest standards',
+          'Proper packaging',
+        ],
+      },
       groups: [
         {
           title: 'Agricultural & Farming Products',
@@ -1138,8 +1423,7 @@ const ProductsPage = ({
         },
         {
           title: 'Plant & Nursery Products',
-          subtitle:
-            'From plant growing, nurseries, forestry, and landscaping.',
+          subtitle: 'From plant growing, nurseries, forestry, and landscaping.',
           items: [
             'Ornamental plants (flowers, decorative plants)',
             'Tree seedlings (forest & non-forest)',
@@ -1162,8 +1446,7 @@ const ProductsPage = ({
         },
         {
           title: 'Agro-Processing & Market-Ready Products',
-          subtitle:
-            'From crop preparation, cleaning, grading, and market packaging.',
+          subtitle: 'From crop preparation, cleaning, grading, and market packaging.',
           items: [
             'Cleaned and graded grains',
             'Packaged vegetables and fruits',
@@ -1173,8 +1456,7 @@ const ProductsPage = ({
         },
         {
           title: 'Recycling & Environmental Products',
-          subtitle:
-            'From waste recycling and environmental protection.',
+          subtitle: 'From waste recycling and environmental protection.',
           items: [
             'Recycled metal materials',
             'Recycled plastic materials',
@@ -1186,8 +1468,7 @@ const ProductsPage = ({
         },
         {
           title: 'Environmental & Ecological Products',
-          subtitle:
-            'From land maintenance and environmental programmes.',
+          subtitle: 'From land maintenance and environmental programmes.',
           items: [
             'Carbon credits (if projects qualify)',
             'Environmental restoration outputs',
@@ -1197,8 +1478,7 @@ const ProductsPage = ({
         },
         {
           title: 'Technical & Consulting Products',
-          subtitle:
-            'Packaged technical, engineering, and consultancy solutions.',
+          subtitle: 'Packaged technical, engineering, and consultancy solutions.',
           items: [
             'Environmental impact assessment reports',
             'Engineering design plans',
@@ -1211,8 +1491,7 @@ const ProductsPage = ({
         },
         {
           title: 'Cleaning & Maintenance Products',
-          subtitle:
-            'Indirect products from industrial cleaning and maintenance support.',
+          subtitle: 'Indirect products from industrial cleaning and maintenance support.',
           items: [
             'Cleaning solutions (if produced or resold)',
             'Waste collected and processed (recyclables)',
@@ -1245,6 +1524,36 @@ const ProductsPage = ({
     },
 
     rw: {
+      introLeft: {
+        badge: 'Ibikomoka muri Pepiniyeri',
+        title: 'Ingemwe zifite Ubwiza',
+        description:
+          'EcoCycle Rwanda ifite pepiniyeri zikora ingemwe nziza kandi zikwiranye n’ikirere n’ubutaka by’u Rwanda.',
+        cardTitle: 'Ibyiciro by’Ingemwe:',
+        items: [
+          'Ingemwe z’imboga n’imbuto',
+          'Ingemwe z’ibiti by’amashyamba',
+          'Ibimera by’ubuhinzi-bw’amashyamba',
+          'Ibimera bihanganira imihindagurikire y’ikirere',
+        ],
+        note:
+          'Ingemwe zose zitunganywa hakoreshejwe uburyo burambye bwo kubungabunga ubutaka no kugenzura ubuziranenge kugira ngo zikure neza kandi zibeho igihe kirekire.',
+      },
+      introRight: {
+        badge: 'Umusaruro Mushya',
+        title: 'Amasoko yo Mu Gihugu n’Ayo Kohereza Hanze',
+        description:
+          'Ibikomoka ku buhinzi bifite ubuziranenge bitunganywa kandi bigahabwa amasoko yo mu gihugu no hanze hashingiwe ku buhinzi bujyanye n’ikirere.',
+        cardTitle: 'Ibicuruzwa By’ingenzi:',
+        items: ['Avoka', 'Urusenda', 'Ibishyimbo bibisi', 'Imbuto z’ibihembwe'],
+        complianceTitle: 'Ibyubahirizwa ku Isoko:',
+        compliance: [
+          'Gutoranya ubuziranenge',
+          'Traceability systems',
+          'Amabwiriza nyuma y’isarura',
+          'Gupakira neza',
+        ],
+      },
       groups: [
         {
           title: 'Ibikomoka ku Buhinzi n’Ubworozi',
@@ -1288,8 +1597,7 @@ const ProductsPage = ({
         },
         {
           title: 'Ibikomoka ku Gutunganya Umusaruro no Kuwugeza ku Isoko',
-          subtitle:
-            'Bikomoka ku gutegura, gusukura, gutoranya no gupakira umusaruro.',
+          subtitle: 'Bikomoka ku gutegura, gusukura, gutoranya no gupakira umusaruro.',
           items: [
             'Ibinyampeke byasukuwe kandi byatoranyijwe',
             'Imboga n’imbuto bipfunyitse neza',
@@ -1299,21 +1607,19 @@ const ProductsPage = ({
         },
         {
           title: 'Ibikomoka ku Isubiranyamikoreshereze n’Ibidukikije',
-          subtitle:
-            'Bikomoka ku kongera gukoresha imyanda no kurengera ibidukikije.',
+          subtitle: 'Bikomoka ku kongera gukoresha imyanda no kurengera ibidukikije.',
           items: [
             'Ibyuma byongeye gukoreshwa',
             'Plastiki zongeye gukoreshwa',
             'Ibikoresho bishaje bigurishwa',
-            'Ibice by’imodoka cyangwa ibindi bikoresho byongera gukoreshwa',
+            'Ibice byongera gukoreshwa',
             'Ifumbire y’imborera',
             'Ibicanwa bya biomass',
           ],
         },
         {
           title: 'Ibikomoka ku Bidukikije no Gusana Isi',
-          subtitle:
-            'Bikomoka ku gufata neza ubutaka no kuri gahunda z’ibidukikije.',
+          subtitle: 'Bikomoka ku gufata neza ubutaka no kuri gahunda z’ibidukikije.',
           items: [
             'Carbon credits (aho bishoboka)',
             'Ibyavuye mu gusana ibidukikije',
@@ -1323,8 +1629,7 @@ const ProductsPage = ({
         },
         {
           title: 'Ibicuruzwa by’Ubugeni n’Ubujyanama',
-          subtitle:
-            'Pakaje z’ibikorwa bya tekiniki, engineering, n’ubujyanama.',
+          subtitle: 'Pakaje z’ibikorwa bya tekiniki, engineering, n’ubujyanama.',
           items: [
             'Raporo z’isuzuma ry’ingaruka ku bidukikije',
             'Igishushanyo mbonera cya engineering',
@@ -1337,8 +1642,7 @@ const ProductsPage = ({
         },
         {
           title: 'Ibikomoka ku Isuku n’Ufashwe rwo Kubungabunga',
-          subtitle:
-            'Ibikomoka ku mirimo y’isuku n’ikorwa ry’ifashwe rya maintenance.',
+          subtitle: 'Ibikomoka ku mirimo y’isuku n’ikorwa ry’ifashwe rya maintenance.',
           items: [
             'Imiti cyangwa ibisubizo by’isuku',
             'Imyanda yakusanyijwe ikanatunganywa',
@@ -1371,6 +1675,36 @@ const ProductsPage = ({
     },
 
     fr: {
+      introLeft: {
+        badge: 'Produits de Pépinière',
+        title: 'Matériel Végétal de Qualité',
+        description:
+          'EcoCycle Rwanda exploite des pépinières professionnelles produisant du matériel végétal de haute qualité adapté aux conditions agro-écologiques du Rwanda.',
+        cardTitle: 'Nos Catégories de Pépinière :',
+        items: [
+          'Plants horticoles',
+          'Plants d’arbres forestiers',
+          'Espèces agroforestières',
+          'Plantes résilientes au climat',
+        ],
+        note:
+          'Tous les plants sont produits selon des pratiques durables de gestion des sols et des systèmes de contrôle qualité pour assurer un fort enracinement et un bon taux de survie.',
+      },
+      introRight: {
+        badge: 'Produits Frais',
+        title: 'Marchés Locaux & d’Exportation',
+        description:
+          'Des produits horticoles premium fournis aux marchés locaux et internationaux selon des pratiques agricoles intelligentes face au climat.',
+        cardTitle: 'Produits Clés :',
+        items: ['Avocat', 'Piment', 'Haricots verts', 'Fruits de saison'],
+        complianceTitle: 'Conformité Marché :',
+        compliance: [
+          'Classement qualité',
+          'Traçabilité',
+          'Normes post-récolte',
+          'Bon emballage',
+        ],
+      },
       groups: [
         {
           title: 'Produits Agricoles et de Production',
@@ -1390,8 +1724,7 @@ const ProductsPage = ({
         },
         {
           title: 'Produits de Pépinière et Végétaux',
-          subtitle:
-            'Issus des pépinières, de la foresterie et de l’aménagement paysager.',
+          subtitle: 'Issus des pépinières, de la foresterie et de l’aménagement paysager.',
           items: [
             'Plantes ornementales',
             'Plants d’arbres forestiers et non forestiers',
@@ -1414,8 +1747,7 @@ const ProductsPage = ({
         },
         {
           title: 'Produits Agro-Transformés et Prêts pour le Marché',
-          subtitle:
-            'Issus de la préparation, du nettoyage, du tri et du conditionnement.',
+          subtitle: 'Issus de la préparation, du nettoyage, du tri et du conditionnement.',
           items: [
             'Grains nettoyés et calibrés',
             'Légumes et fruits emballés',
@@ -1425,8 +1757,7 @@ const ProductsPage = ({
         },
         {
           title: 'Produits de Recyclage et Environnementaux',
-          subtitle:
-            'Issus du recyclage des déchets et de la protection de l’environnement.',
+          subtitle: 'Issus du recyclage des déchets et de la protection de l’environnement.',
           items: [
             'Matériaux métalliques recyclés',
             'Matériaux plastiques recyclés',
@@ -1438,8 +1769,7 @@ const ProductsPage = ({
         },
         {
           title: 'Produits Écologiques et de Restauration',
-          subtitle:
-            'Issus de l’entretien des terres et des programmes environnementaux.',
+          subtitle: 'Issus de l’entretien des terres et des programmes environnementaux.',
           items: [
             'Crédits carbone (si les projets sont éligibles)',
             'Résultats de restauration environnementale',
@@ -1449,8 +1779,7 @@ const ProductsPage = ({
         },
         {
           title: 'Produits Techniques et de Conseil',
-          subtitle:
-            'Solutions packagées en ingénierie, conseil et études.',
+          subtitle: 'Solutions packagées en ingénierie, conseil et études.',
           items: [
             'Rapports d’étude d’impact environnemental',
             'Plans de conception d’ingénierie',
@@ -1497,71 +1826,168 @@ const ProductsPage = ({
     },
   } as const;
 
+  const productIconMap = [
+    <Wheat className="w-6 h-6" />,
+    <Flower2 className="w-6 h-6" />,
+    <Beef className="w-6 h-6" />,
+    <Package className="w-6 h-6" />,
+    <Recycle className="w-6 h-6" />,
+    <Trees className="w-6 h-6" />,
+    <Wrench className="w-6 h-6" />,
+    <ShieldCheck className="w-6 h-6" />,
+    <ShoppingBag className="w-6 h-6" />,
+  ];
+
   const content = productsContent[language] ?? productsContent.en;
 
+  const showcaseCards = useMemo(
+    () => [
+      {
+        icon: <Leaf className="w-5 h-5" />,
+        badge: content.introLeft.badge,
+        title: content.introLeft.title,
+        description: content.introLeft.description,
+        cardTitle: content.introLeft.cardTitle,
+        items: content.introLeft.items,
+        note: content.introLeft.note,
+        accent: 'green',
+      },
+      {
+        icon: <Package className="w-5 h-5" />,
+        badge: content.introRight.badge,
+        title: content.introRight.title,
+        description: content.introRight.description,
+        cardTitle: content.introRight.cardTitle,
+        items: content.introRight.items,
+        complianceTitle: content.introRight.complianceTitle,
+        compliance: content.introRight.compliance,
+        accent: 'amber',
+      },
+    ],
+    [content]
+  );
+
   return (
-    <div className="pb-24">
-      <section className="bg-[#fcfcf7] py-20 border-b border-emerald-900/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h1 className="text-5xl font-bold text-emerald-900 mb-6">
-              {t.products.title}
-            </h1>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
-              {t.products.subtitle}
-            </p>
-          </motion.div>
+    <div className="pb-24 bg-[#f7faf6]">
+      <PageHero
+        title={t.products.title}
+        subtitle={t.products.subtitle}
+        image={pageBackgrounds.products}
+        badge={t.nav.products}
+      />
+
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
+          {showcaseCards.map((card, index) => (
+            <HoverGlowCard
+              key={index}
+              className="overflow-hidden bg-[#fcfcf7] border border-emerald-900/8"
+            >
+              <div className="p-8 md:p-10">
+                <div
+                  className={cn(
+                    'inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-black tracking-[0.18em] uppercase mb-7',
+                    card.accent === 'green'
+                      ? 'bg-emerald-100 text-emerald-800'
+                      : 'bg-amber-100 text-amber-700'
+                  )}
+                >
+                  {card.icon}
+                  {card.badge}
+                </div>
+
+                <h2 className="text-4xl md:text-5xl font-black tracking-tight text-emerald-900 leading-tight mb-6">
+                  {card.title}
+                </h2>
+                <p className="text-slate-600 text-lg leading-relaxed mb-10">
+                  {card.description}
+                </p>
+
+                <div className="rounded-[2rem] bg-white border border-emerald-900/8 shadow-sm p-8">
+                  <h3 className="text-2xl font-bold text-emerald-900 mb-6">{card.cardTitle}</h3>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                    {card.items.map((item) => (
+                      <div
+                        key={item}
+                        className="flex items-center gap-3 rounded-2xl bg-slate-50 border border-slate-100 px-4 py-4"
+                      >
+                        <Leaf
+                          size={20}
+                          className={cn(
+                            card.accent === 'green' ? 'text-emerald-600' : 'text-amber-600'
+                          )}
+                        />
+                        <span className="text-slate-700 font-medium leading-relaxed">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {'note' in card && card.note ? (
+                    <div className="rounded-2xl border-l-4 border-emerald-500 bg-emerald-50/70 px-5 py-4 text-slate-600 italic leading-relaxed">
+                      {card.note}
+                    </div>
+                  ) : null}
+
+                  {'compliance' in card && card.compliance ? (
+                    <div className="mt-8">
+                      <h4 className="text-xl font-bold text-emerald-900 mb-5">
+                        {card.complianceTitle}
+                      </h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {card.compliance.map((item) => (
+                          <div key={item} className="flex items-center gap-3">
+                            <CheckCircle size={18} className="text-emerald-500 shrink-0" />
+                            <span className="text-slate-700">{item}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            </HoverGlowCard>
+          ))}
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-8">
-        {content.groups.map((group, index) => (
-          <motion.div
-            key={group.title}
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: index * 0.04 }}
-            className="bg-white rounded-[2rem] border border-emerald-900/5 shadow-sm overflow-hidden"
-          >
-            <div className="p-6 md:p-8 border-b border-emerald-900/5 bg-[#fcfcf7]">
-              <div className="flex items-center gap-4 mb-3">
-                <div className="w-14 h-14 rounded-2xl bg-emerald-900 text-white flex items-center justify-center shadow-md">
-                  {productIconMap[index as keyof typeof productIconMap] ?? <Package className="w-6 h-6" />}
-                </div>
-                <div>
-                  <h2 className="text-2xl md:text-3xl font-bold text-emerald-900">
-                    {group.title}
-                  </h2>
-                </div>
-              </div>
-              <p className="text-slate-600 leading-relaxed">
-                {group.subtitle}
-              </p>
-            </div>
-
-            <div className="p-6 md:p-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {group.items.map((item) => (
-                  <div
-                    key={item}
-                    className="flex items-start gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-emerald-200 transition-colors"
-                  >
-                    <CheckCircle size={18} className="text-emerald-500 mt-0.5 shrink-0" />
-                    <span className="text-slate-700 leading-relaxed">{item}</span>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+          {content.groups.map((group, index) => (
+            <HoverGlowCard key={group.title}>
+              <div className="p-7 border-b border-emerald-900/6 bg-[#fcfcf7]">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-14 h-14 rounded-2xl bg-emerald-900 text-white flex items-center justify-center shadow-md">
+                    {productIconMap[index] ?? <Factory className="w-6 h-6" />}
                   </div>
-                ))}
+                  <div>
+                    <h2 className="text-2xl font-bold text-emerald-900 leading-snug">
+                      {group.title}
+                    </h2>
+                  </div>
+                </div>
+                <p className="text-slate-600 leading-relaxed">{group.subtitle}</p>
               </div>
-            </div>
-          </motion.div>
-        ))}
+
+              <div className="p-7">
+                <div className="space-y-3">
+                  {group.items.map((item) => (
+                    <div
+                      key={item}
+                      className="flex items-start gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-emerald-200 transition-colors"
+                    >
+                      <CheckCircle size={18} className="text-emerald-500 mt-0.5 shrink-0" />
+                      <span className="text-slate-700 leading-relaxed">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </HoverGlowCard>
+          ))}
+        </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16">
         <div className="bg-white rounded-[2rem] border border-emerald-900/5 shadow-sm overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
             <div className="p-8 md:p-10 bg-emerald-900 text-white">
@@ -1580,7 +2006,9 @@ const ProductsPage = ({
             </div>
 
             <div className="p-8 md:p-10 bg-[#fcfcf7]">
-              <h3 className="text-2xl font-bold text-emerald-900 mb-6">{content.highlightsTitle}</h3>
+              <h3 className="text-2xl font-bold text-emerald-900 mb-6">
+                {content.highlightsTitle}
+              </h3>
               <div className="space-y-4 text-slate-700 mb-10">
                 {content.highlights.map((item) => (
                   <div key={item} className="flex items-start gap-3">
@@ -1590,11 +2018,9 @@ const ProductsPage = ({
                 ))}
               </div>
 
-              <div className="rounded-3xl bg-white border border-emerald-900/10 p-6">
+              <div className="rounded-3xl bg-white border border-emerald-900/10 p-6 shadow-sm">
                 <h4 className="text-2xl font-bold text-emerald-900 mb-3">{content.buyerTitle}</h4>
-                <p className="text-slate-600 leading-relaxed mb-6">
-                  {content.buyerText}
-                </p>
+                <p className="text-slate-600 leading-relaxed mb-6">{content.buyerText}</p>
                 <button
                   onClick={() => setCurrentPage('contact')}
                   className="inline-flex items-center gap-3 bg-emerald-900 text-white px-8 py-4 rounded-2xl font-bold hover:bg-emerald-800 transition-colors shadow-md"
@@ -1613,41 +2039,120 @@ const ProductsPage = ({
 
 const ContactPage = ({ t }: { t: T }) => {
   return (
-    <div className="pb-24">
-      <section className="bg-[#fcfcf7] py-24 border-b border-emerald-900/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl font-bold text-emerald-900 mb-6">{t.contact.title}</h1>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto">{t.contact.subtitle}</p>
-        </div>
-      </section>
+    <div className="pb-24 bg-[#f8fbf7]">
+      <PageHero
+        title={t.contact.title}
+        subtitle={t.contact.subtitle}
+        image={pageBackgrounds.contact}
+        badge={t.nav.contact}
+      />
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
-          <div className="lg:col-span-1 space-y-12">
+          <HoverGlowCard className="lg:col-span-1 p-8 md:p-10">
             <div>
               <h3 className="text-xl font-bold text-emerald-900 mb-6">{t.contact.details}</h3>
               <ul className="space-y-6">
-                <li className="flex gap-4 items-start"><div className="p-3 bg-emerald-900/10 rounded-xl text-emerald-900"><MapPin size={24} /></div><div><div className="font-bold">{t.contact.address}</div><div className="text-slate-600">{t.footer.address}</div></div></li>
-                <li className="flex gap-4 items-start"><div className="p-3 bg-emerald-900/10 rounded-xl text-emerald-900"><Phone size={24} /></div><div><div className="font-bold">{t.contact.phone}</div><a href="tel:+250788963938" className="text-slate-600 hover:text-emerald-500 transition-colors">{t.topbar.phone}</a></div></li>
-                <li className="flex gap-4 items-start"><div className="p-3 bg-emerald-900/10 rounded-xl text-emerald-900"><MessageCircle size={24} /></div><div><div className="font-bold">{t.contact.whatsapp}</div><a href="https://wa.me/250788963938" target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-emerald-500 transition-colors">{t.topbar.phone}</a></div></li>
-                <li className="flex gap-4 items-start"><div className="p-3 bg-emerald-900/10 rounded-xl text-emerald-900"><Mail size={24} /></div><div><div className="font-bold">{t.contact.email}</div><div className="text-slate-600">{t.topbar.email}</div></div></li>
+                <li className="flex gap-4 items-start">
+                  <div className="p-3 bg-emerald-900/10 rounded-xl text-emerald-900">
+                    <MapPin size={24} />
+                  </div>
+                  <div>
+                    <div className="font-bold">{t.contact.address}</div>
+                    <div className="text-slate-600">{t.footer.address}</div>
+                  </div>
+                </li>
+                <li className="flex gap-4 items-start">
+                  <div className="p-3 bg-emerald-900/10 rounded-xl text-emerald-900">
+                    <Phone size={24} />
+                  </div>
+                  <div>
+                    <div className="font-bold">{t.contact.phone}</div>
+                    <a
+                      href="tel:+250788963938"
+                      className="text-slate-600 hover:text-emerald-500 transition-colors"
+                    >
+                      {t.topbar.phone}
+                    </a>
+                  </div>
+                </li>
+                <li className="flex gap-4 items-start">
+                  <div className="p-3 bg-emerald-900/10 rounded-xl text-emerald-900">
+                    <MessageCircle size={24} />
+                  </div>
+                  <div>
+                    <div className="font-bold">{t.contact.whatsapp}</div>
+                    <a
+                      href="https://wa.me/250788963938"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-slate-600 hover:text-emerald-500 transition-colors"
+                    >
+                      {t.topbar.phone}
+                    </a>
+                  </div>
+                </li>
+                <li className="flex gap-4 items-start">
+                  <div className="p-3 bg-emerald-900/10 rounded-xl text-emerald-900">
+                    <Mail size={24} />
+                  </div>
+                  <div>
+                    <div className="font-bold">{t.contact.email}</div>
+                    <div className="text-slate-600">{t.topbar.email}</div>
+                  </div>
+                </li>
               </ul>
             </div>
-            <div>
+            <div className="mt-12">
               <h3 className="text-xl font-bold text-emerald-900 mb-6">{t.contact.follow}</h3>
               <div className="flex gap-4 flex-wrap">
-                <a href="https://www.facebook.com/EcoCycleRwanda" target="_blank" rel="noopener noreferrer" className="p-4 bg-white shadow-sm border border-emerald-900/5 rounded-2xl hover:text-emerald-500 transition-colors"><Facebook /></a>
-                <a href="https://www.instagram.com/ecocyclerwanda" target="_blank" rel="noopener noreferrer" className="p-4 bg-white shadow-sm border border-emerald-900/5 rounded-2xl hover:text-emerald-500 transition-colors"><Instagram /></a>
-                <a href="https://www.linkedin.com/company/ecocyclerwanda" target="_blank" rel="noopener noreferrer" className="p-4 bg-white shadow-sm border border-emerald-900/5 rounded-2xl hover:text-emerald-500 transition-colors"><Linkedin /></a>
-                <a href="https://x.com/EcoCycleRwanda" target="_blank" rel="noopener noreferrer" className="p-4 bg-white shadow-sm border border-emerald-900/5 rounded-2xl hover:text-emerald-500 transition-colors"><Twitter /></a>
-                <a href={YOUTUBE_URL} target="_blank" rel="noopener noreferrer" className="p-4 bg-white shadow-sm border border-emerald-900/5 rounded-2xl hover:text-emerald-500 transition-colors"><Youtube /></a>
+                <a
+                  href="https://www.facebook.com/EcoCycleRwanda"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-4 bg-white shadow-sm border border-emerald-900/5 rounded-2xl hover:text-emerald-500 transition-colors"
+                >
+                  <Facebook />
+                </a>
+                <a
+                  href="https://www.instagram.com/ecocyclerwanda"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-4 bg-white shadow-sm border border-emerald-900/5 rounded-2xl hover:text-emerald-500 transition-colors"
+                >
+                  <Instagram />
+                </a>
+                <a
+                  href="https://www.linkedin.com/company/ecocyclerwanda"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-4 bg-white shadow-sm border border-emerald-900/5 rounded-2xl hover:text-emerald-500 transition-colors"
+                >
+                  <Linkedin />
+                </a>
+                <a
+                  href="https://x.com/EcoCycleRwanda"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-4 bg-white shadow-sm border border-emerald-900/5 rounded-2xl hover:text-emerald-500 transition-colors"
+                >
+                  <Twitter />
+                </a>
+                <a
+                  href={YOUTUBE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-4 bg-white shadow-sm border border-emerald-900/5 rounded-2xl hover:text-emerald-500 transition-colors"
+                >
+                  <Youtube />
+                </a>
               </div>
             </div>
-          </div>
+          </HoverGlowCard>
 
-          <div className="lg:col-span-2">
+          <HoverGlowCard className="lg:col-span-2 p-2 md:p-4">
             <ContactForm t={t} />
-          </div>
+          </HoverGlowCard>
         </div>
       </section>
     </div>
@@ -1676,19 +2181,13 @@ const PartnersPage = ({
   }, []);
 
   return (
-    <div className="pb-24">
-      <section className="bg-emerald-900 text-white py-32 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-400 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-emerald-400 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <h1 className="text-6xl font-bold mb-8">{t.partners.title}</h1>
-          <p className="text-xl text-emerald-100 max-w-3xl mx-auto leading-relaxed">
-            {t.partners.subtitle}
-          </p>
-        </div>
-      </section>
+    <div className="pb-24 bg-[#f8fbf7]">
+      <PageHero
+        title={t.partners.title}
+        subtitle={t.partners.subtitle}
+        image={pageBackgrounds.partners}
+        badge={t.nav.partners}
+      />
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
         <div className="text-center mb-24">
@@ -1708,42 +2207,42 @@ const PartnersPage = ({
               const text = getLocalizedPartner(partner, language);
 
               return (
-                <motion.div
-                  key={partner.id}
-                  whileHover={{ scale: 1.03 }}
-                  className="bg-white p-8 rounded-[2rem] shadow-sm border border-emerald-900/5 hover:shadow-xl transition-all duration-500"
-                >
-                  <div className="aspect-video rounded-2xl overflow-hidden mb-6 bg-slate-50">
-                    <img
-                      src={partner.imageUrl}
-                      alt={partner.name}
-                      className="w-full h-full object-cover"
-                    />
+                <HoverGlowCard key={partner.id}>
+                  <div className="p-8">
+                    <div className="aspect-video rounded-2xl overflow-hidden mb-6 bg-slate-50">
+                      <img
+                        src={partner.imageUrl}
+                        alt={partner.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      />
+                    </div>
+
+                    <h3 className="text-xl font-bold text-emerald-900 mb-3">{partner.name}</h3>
+                    <p className="text-slate-600 text-sm leading-relaxed mb-5">
+                      {text.description}
+                    </p>
+
+                    {partner.websiteUrl ? (
+                      <a
+                        href={partner.websiteUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-emerald-900 font-semibold hover:text-emerald-500"
+                      >
+                        Visit <ExternalLink size={16} />
+                      </a>
+                    ) : null}
                   </div>
-
-                  <h3 className="text-xl font-bold text-emerald-900 mb-3">{partner.name}</h3>
-                  <p className="text-slate-600 text-sm leading-relaxed mb-5">
-                    {text.description}
-                  </p>
-
-                  {partner.websiteUrl ? (
-                    <a
-                      href={partner.websiteUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-emerald-900 font-semibold hover:text-emerald-500"
-                    >
-                      Visit <ExternalLink size={16} />
-                    </a>
-                  ) : null}
-                </motion.div>
+                </HoverGlowCard>
               );
             })}
           </div>
         )}
 
         <div className="mt-32 bg-[#fcfcf7] rounded-[3rem] p-16 md:p-24 text-center border border-emerald-900/5">
-          <h3 className="text-4xl font-bold text-emerald-900 mb-8">{t.partners.collaborationTitle}</h3>
+          <h3 className="text-4xl font-bold text-emerald-900 mb-8">
+            {t.partners.collaborationTitle}
+          </h3>
           <p className="text-slate-600 max-w-2xl mx-auto mb-12 text-lg">
             {t.partners.collaborationText}
           </p>
@@ -1848,7 +2347,13 @@ export default function App() {
           />
         );
       case 'projects':
-        return <ProjectsPage t={t} language={safeLanguage} setCurrentPage={setCurrentPage} />;
+        return (
+          <ProjectsPage
+            t={t}
+            language={safeLanguage}
+            setCurrentPage={setCurrentPage}
+          />
+        );
       case 'impact':
         return <ImpactPage t={t} language={safeLanguage} />;
       case 'partners':
@@ -1858,7 +2363,13 @@ export default function App() {
       case 'donate':
         return <DonatePage t={t} />;
       case 'products':
-        return <ProductsPage t={t} language={safeLanguage} setCurrentPage={setCurrentPage} />;
+        return (
+          <ProductsPage
+            t={t}
+            language={safeLanguage}
+            setCurrentPage={setCurrentPage}
+          />
+        );
       case 'contact':
         return <ContactPage t={t} />;
       case 'admin':
@@ -1869,7 +2380,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[#f8fbf7]">
       <TopBar t={t} />
       <Navbar
         currentPage={currentPage}
