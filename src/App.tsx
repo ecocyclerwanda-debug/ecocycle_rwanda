@@ -82,6 +82,9 @@ import partnersBg from './assets/eco-images/partners.jpg';
 import newsBg from './assets/eco-images/news.jpg';
 import donateBg from './assets/eco-images/donate.jpg';
 import contactBg from './assets/eco-images/contact.jpg';
+import modelEnImg from './assets/eco-images/model-en.png';
+import modelRwImg from './assets/eco-images/model-rw.png';
+import modelFrImg from './assets/eco-images/model-fr.png';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -148,6 +151,7 @@ function getLocalizedPartner(item: PartnerItem, language: Language) {
 }
 
 function getLocalizedImpact(item: ImpactStoryItem, language: Language) {
+  
   const current = item.translations[language];
   const fallback = item.translations.en;
 
@@ -155,6 +159,17 @@ function getLocalizedImpact(item: ImpactStoryItem, language: Language) {
     role: current.role || fallback.role,
     quote: current.quote || fallback.quote,
   };
+}
+function getLocalizedModelImage(language: Language) {
+  switch (language) {
+    case 'rw':
+      return modelRwImg;
+    case 'fr':
+      return modelFrImg;
+    case 'en':
+    default:
+      return modelEnImg;
+  }
 }
 
 const PageHero = ({
@@ -1240,6 +1255,8 @@ const ImpactPage = ({
     return stop;
   }, []);
 
+  const currentModelImage = getLocalizedModelImage(language);
+
   return (
     <div className="pb-24 bg-[#f8fbf7]">
       <PageHero
@@ -1273,13 +1290,16 @@ const ImpactPage = ({
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                       />
                     </div>
+
                     <div className="p-8">
                       <div className="text-emerald-500 mb-4">
                         <Heart size={32} />
                       </div>
+
                       <p className="text-lg text-slate-700 italic mb-6 leading-relaxed">
                         "{text.quote}"
                       </p>
+
                       <div className="font-bold text-emerald-900">{item.name}</div>
                       <div className="text-sm text-emerald-600 mb-4">{text.role}</div>
 
@@ -1303,12 +1323,17 @@ const ImpactPage = ({
         )}
 
         <div className="mt-24 text-center">
-          <h2 className="text-3xl font-bold text-emerald-900 mb-12">{t.impact.model}</h2>
-          <div className="max-w-4xl mx-auto aspect-[16/9] bg-white rounded-3xl border-2 border-dashed border-emerald-900/20 flex items-center justify-center">
-            <div className="text-slate-400 flex flex-col items-center gap-4">
-              <Recycle size={64} />
-              <p className="text-xl italic">{t.impact.infographic}</p>
-            </div>
+          <h2 className="text-3xl font-bold text-emerald-900 mb-12">
+            {t.impact.model}
+          </h2>
+
+          <div className="max-w-5xl mx-auto bg-white rounded-3xl overflow-hidden border border-emerald-900/10 shadow-sm">
+            <img
+              src={currentModelImage}
+              alt={`EcoCycle Rwanda Circular Agriculture Model - ${language}`}
+              className="w-full h-auto object-contain"
+              loading="lazy"
+            />
           </div>
         </div>
       </section>
