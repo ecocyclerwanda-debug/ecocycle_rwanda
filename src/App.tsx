@@ -38,8 +38,6 @@ import {
   Flower2,
   Factory,
   Wheat,
-  Tractor,
-  Apple,
 } from 'lucide-react';
 import {
   Page,
@@ -68,6 +66,23 @@ import { translations, type Language } from './i18n';
 
 import logoImg from './assets/logo.png';
 
+/**
+ * LOCAL BACKGROUND IMAGES
+ * Adjust extensions if your files are .png, .jpeg, or .webp
+ * Example:
+ * import homeBg from './assets/eco-images/home.png';
+ */
+import homeBg from './assets/eco-images/home.jpg';
+import aboutBg from './assets/eco-images/about.jpg';
+import servicesBg from './assets/eco-images/services.jpg';
+import productsBg from './assets/eco-images/products.jpg';
+import projectsBg from './assets/eco-images/projects.jpg';
+import impactsBg from './assets/eco-images/impacts.jpg';
+import partnersBg from './assets/eco-images/partners.jpg';
+import newsBg from './assets/eco-images/news.jpg';
+import donateBg from './assets/eco-images/donate.jpg';
+import contactBg from './assets/eco-images/contact.jpg';
+
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -76,15 +91,16 @@ type T = (typeof translations)[Language];
 const YOUTUBE_URL = 'https://www.youtube.com/@EcoCycleRwanda';
 
 const pageBackgrounds = {
-  home: 'https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?auto=format&fit=crop&q=80&w=1920',
-  about: 'https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&q=80&w=1920',
-  services: 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&q=80&w=1920',
-  products: 'https://images.unsplash.com/photo-1518843875459-f738682238a6?auto=format&fit=crop&q=80&w=1920',
-  projects: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80&w=1920',
-  impact: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=1920',
-  partners: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&q=80&w=1920',
-  donate: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=1920',
-  contact: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&q=80&w=1920',
+  home: homeBg,
+  about: aboutBg,
+  services: servicesBg,
+  products: productsBg,
+  projects: projectsBg,
+  impact: impactsBg,
+  partners: partnersBg,
+  news:newsBg,
+  donate: donateBg,
+  contact: contactBg,
 };
 
 function getLocalizedLeader(item: LeaderItem, language: Language) {
@@ -159,6 +175,7 @@ const PageHero = ({
           src={image}
           alt={title}
           className="w-full h-full object-cover scale-105"
+          loading="eager"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/85 via-emerald-900/60 to-emerald-950/75" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.22),transparent_30%)]" />
@@ -704,6 +721,7 @@ const HomePage = ({
             src={pageBackgrounds.home}
             alt="Lush Rwandan Landscape"
             className="w-full h-full object-cover brightness-[0.45] scale-105"
+            loading="eager"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-emerald-900/60 via-transparent to-emerald-900/80" />
         </div>
@@ -1310,7 +1328,7 @@ const NewsPage = ({
       <PageHero
         title={t.nav.news}
         subtitle={t.home.heroText}
-        image={pageBackgrounds.home}
+        image={pageBackgrounds.news}
         badge={t.nav.news}
       />
       <NewsPageContent t={t} language={language} />
